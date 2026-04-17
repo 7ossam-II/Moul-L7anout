@@ -1,4 +1,9 @@
 import { Router } from 'express';
+import * as authController from '../controllers/authController';
+import * as storeController from '../controllers/storeController';
+import * as productController from '../controllers/productController';
+import * as orderController from '../controllers/orderController';
+import { authMiddleware } from '../middleware/auth';
 
 const router = Router();
 
@@ -14,6 +19,26 @@ router.get('/health', (req, res) => {
   });
 });
 
+// Auth routes
+router.post('/auth/register', authController.register);
+router.post('/auth/login', authController.login);
+router.get('/auth/me', authMiddleware, authController.getCurrentUser);
+
+// Store routes
+router.get('/stores/nearby', storeController.getNearbyStores);
+router.get('/stores/:storeId', storeController.getStoreById);
+router.post('/stores', authMiddleware, storeController.createStore);
+
+// Product routes
+router.get('/stores/:storeId/products', productController.getProductsByStore);
+router.get('/products/:productId', productController.getProductById);
+router.post('/products', authMiddleware, productController.createProduct);
+
+// Order routes
+router.post('/orders', authMiddleware, orderController.createOrder);
+router.get('/orders/:orderId', authMiddleware, orderController.getOrderById);
+router.get('/orders', authMiddleware, orderController.getMyOrders);
+
 // 404 for everything else
 router.use('*', (req, res) => {
   res.status(404).json({
@@ -22,5 +47,4 @@ router.use('*', (req, res) => {
   });
 });
 
-// ✅ MUST use export default
 export default router;
