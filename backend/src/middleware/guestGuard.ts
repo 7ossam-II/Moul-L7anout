@@ -1,0 +1,1 @@
+// Allow guest access (offline cash only)	FR1.3 (Guest checkout)

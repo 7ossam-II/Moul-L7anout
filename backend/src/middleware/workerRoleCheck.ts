@@ -1,0 +1,1 @@
+//Special permissions for cashier/worker	FR7.6 (Subordinate accounts)

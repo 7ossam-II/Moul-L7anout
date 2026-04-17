@@ -1,0 +1,1 @@
+// Queue requests when offline	NFR7.2 (Offline behavior)
