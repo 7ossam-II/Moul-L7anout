@@ -7,9 +7,6 @@
 
 ---
 
-## What Is Moul7anout?
-
-Moul7anout (Arabic: مول الحانوت, "the shop owner") is a mobile-first marketplace platform built for the Moroccan market. It combines the product discovery model of 闲鱼 (Xianyu) with the local store map experience of Meituan, adapted for Moroccan culture and commerce.
 
 **Core features:**
 
@@ -116,18 +113,6 @@ Please read [CONTRIBUTING.md](https://github.com/7ossam-II/Moul-L7anout/blob/dev
 2. Make your changes and commit with a clear message
 3. Push and open a PR targeting `develop`
 4. Wait for review before merging
-
----
-
-## Team
-
-| Name | Role |
-|---|---|
-| Hossam | Founder, Lead Developer, UI/UX |
-| Teammate 2 | Content & Copywriting |
-| Teammate 3 | Market Research |
-| Teammate 4 | Product Testing & QA |
-| Teammate 5 | Social Media & Community |
 
 ---
 
