@@ -34,7 +34,7 @@ export const register = async (req: Request, res: Response) => {
     const token = jwt.sign(
       { userId: user._id, role: user.role },
       env.JWT_SECRET || 'secret',
-      { expiresIn: env.JWT_EXPIRE || '1h' }
+      { expiresIn: (env.JWT_EXPIRE || '1h') as any }
     );
 
     res.status(201).json({
@@ -81,7 +81,7 @@ export const login = async (req: Request, res: Response) => {
     const token = jwt.sign(
       { userId: user._id, role: user.role },
       env.JWT_SECRET || 'secret',
-      { expiresIn: env.JWT_EXPIRE || '1h' }
+      { expiresIn: (env.JWT_EXPIRE || '1h') as any }
     );
 
     res.json({
