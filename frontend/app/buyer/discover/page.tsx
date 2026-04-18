@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { storesApi } from '@/lib/api/endpoints';
+import type { ApiResponse, Store } from '@/lib/types/api.types';
 import Link from 'next/link';
 
 export default function DiscoverPage() {
@@ -19,10 +20,10 @@ export default function DiscoverPage() {
     }
   }, []);
 
-  const { data: stores, isLoading, error } = useQuery({
+  const { data: stores, isLoading, error } = useQuery<ApiResponse<Store[]>>({
     queryKey: ['nearby-stores', location],
-    queryFn: () => {
-      if (!location) return Promise.resolve([]);
+    queryFn: (): Promise<ApiResponse<Store[]>> => {
+      if (!location) return Promise.resolve({ success: true, data: [] });
       return storesApi.getNearby(location.lat, location.lng, 5000);
     },
     enabled: !!location,
@@ -43,8 +44,8 @@ export default function DiscoverPage() {
 
         {stores && stores.data && stores.data.length > 0 ? (
           <div className="grid grid-cols-1 gap-4">
-            {stores.data.map((store: any) => (
-              <Link key={store._id} href={`/buyer/store/${store._id}`}>
+            {stores.data.map((store: Store) => (
+              <Link key={store.id} href={`/buyer/store/${store.id}`}>
                 <div className="bg-white rounded-lg shadow p-4 hover:shadow-md transition cursor-pointer">
                   {store.logo && (
                     <img
