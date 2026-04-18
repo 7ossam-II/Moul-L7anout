@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { storesApi } from '@/lib/api/endpoints';
+import type { ApiResponse, Store } from '@/lib/types/api.types';
 import Link from 'next/link';
 
 export default function MapPage() {
@@ -19,10 +20,10 @@ export default function MapPage() {
     }
   }, []);
 
-  const { data: stores, isLoading } = useQuery({
+  const { data: stores, isLoading } = useQuery<ApiResponse<Store[]>>({
     queryKey: ['nearby-stores-map', location],
-    queryFn: () => {
-      if (!location) return Promise.resolve([]);
+    queryFn: (): Promise<ApiResponse<Store[]>> => {
+      if (!location) return Promise.resolve({ success: true, data: [] });
       return storesApi.getNearby(location.lat, location.lng, 5000);
     },
     enabled: !!location,
@@ -44,8 +45,8 @@ export default function MapPage() {
         {isLoading && <p className="text-center text-gray-600">Loading...</p>}
         {stores && stores.data && stores.data.length > 0 ? (
           <div className="space-y-3">
-            {stores.data.map((store: any) => (
-              <Link key={store._id} href={`/buyer/store/${store._id}`}>
+            {stores.data.map((store: Store) => (
+              <Link key={store.id} href={`/buyer/store/${store.id}`}>
                 <div className="bg-white rounded-lg p-3 shadow hover:shadow-md transition cursor-pointer">
                   <h3 className="font-bold">{store.name}</h3>
                   <p className="text-sm text-gray-600">{store.address}</p>
