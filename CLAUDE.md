@@ -1,13 +1,39 @@
-# Moul7anout — Claude Code Context File
-> Claude Code reads this file automatically at the start of every session. Do not delete it.
+# Moul7anout — Website CLAUDE.md
+> Claude Code reads this automatically. This file covers the **marketing website only** (`website/` folder, `website` branch). The app lives on the `app` branch — do not touch it here.
 
 ---
 
-## What This Project Is
+## What You Are Building
 
-**Moul7anout** (مول الحانوت) is a Moroccan local marketplace app — a mix of 闲鱼 (peer-to-peer selling), Meituan (map-based store discovery), and a local souk. Target market: Casablanca, Morocco. Currency: MAD (Moroccan Dirham). Languages: Arabic, French, Darija (Moroccan Arabic).
+**moul7anout.ma** — the public marketing website for Moul7anout, a Moroccan local marketplace app. This is a pure frontend, single-page marketing site. No backend, no auth, no database. The goal is to be visually stunning enough to impress investors, convince local store owners to sign up, and support the Grab/Agoda internship application.
 
-**Repo:** `https://github.com/7ossam-II/Moul-L7anout`
+Think of the reference bar as: **Glovo's website** meets **a Moroccan souk** meets **a premium tech startup landing page**.
+
+---
+
+## Branch & Folder Rules
+
+| Branch | What lives here |
+|---|---|
+| `website` | The marketing website — your workspace |
+| `app` | The Next.js app (buyer/seller screens) — do not touch |
+| `main` | Production — never touch directly |
+| `develop` | Integration — never push directly |
+
+**Your branch naming:** Always create `feature/website-[task]` off the `website` branch.
+
+```bash
+git checkout website
+git pull origin website
+git checkout -b feature/website-[what-you-are-doing]
+# work
+git add .
+git commit -m "feat(website): description"
+git push origin feature/website-[what-you-are-doing]
+# open PR → base: website
+```
+
+**Your working directory is always `website/`.** Never edit anything outside it.
 
 ---
 
@@ -15,226 +41,185 @@
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js 16 (App Router) + React 19 + TypeScript + Tailwind CSS 4 |
-| Backend | Node.js + Express 4 + TypeScript |
-| Database | MongoDB + Mongoose 8 |
-| Cache / Queue | Redis + BullMQ |
-| Auth | JWT (access + refresh tokens) |
-| Payments | Stripe + LKRIDI (Moroccan installment system) |
-| Real-time | Socket.io |
-| Media | Cloudinary |
-| SMS | Twilio |
+| Framework | Next.js 14 (App Router) |
+| Styling | Tailwind CSS 3 |
+| Animations | **Framer Motion 11** — already in package.json |
+| Icons | Lucide React |
+| Language | TypeScript |
+| Fonts | Syne (headings) + Inter (body) + Noto Sans Arabic (Arabic text) — load via next/font/google |
 
 ---
 
-## Repository Structure
-
-```
-Moul-L7anout/
-├── frontend/                    ← Next.js App Router (your main workspace)
-│   ├── app/
-│   │   ├── page.tsx             ← Root redirect (→ /buyer/dashboard or /auth/login)
-│   │   ├── auth/                ← Login, Register, Verify OTP
-│   │   ├── buyer/               ← Buyer screens (dashboard, discover, map, cart, checkout, orders, profile, lkridi)
-│   │   ├── seller/              ← Seller screens (dashboard, stores, products, lkridi)
-│   │   ├── admin/               ← Admin screens (dashboard, sellers, disputes, ads)
-│   │   ├── delivery/            ← Delivery agent screens
-│   │   └── worker/              ← Store worker screens
-│   ├── components/
-│   │   ├── ui/                  ← Base components: Card, Modal, Spinner, button
-│   │   ├── shared/              ← BottomTabBar, Navbar, LanguageSwitcher, OfflineIndicator
-│   │   ├── buyer/               ← ProductCard, StoreCard
-│   │   ├── seller/, chat/, map/, qr/, rating/, delivery/, worker/
-│   ├── lib/
-│   │   ├── api/                 ← API client + all endpoint functions (endpoints.ts)
-│   │   ├── hooks/               ← useAuth, useApi, useGeolocation, useChat, etc.
-│   │   ├── types/               ← api.types.ts — all TypeScript interfaces
-│   │   ├── providers/           ← QueryProvider (React Query)
-│   │   ├── stores/              ← Zustand stores (if any)
-│   │   └── config/              ← App config
-│   ├── contexts/                ← AuthContext (wraps JWT auth state)
-│   └── messages/                ← i18n JSON files (en.json, ar.json, fr.json)
-│
-├── backend/
-│   └── src/
-│       ├── controllers/         ← One controller per domain
-│       ├── models/              ← Mongoose models (to be created by Yahya)
-│       ├── routes/              ← Express routes
-│       ├── middleware/          ← Auth, error handling, rate limiting
-│       ├── jobs/                ← BullMQ background jobs
-│       ├── lib/                 ← Cloudinary, Redis, Socket, Stripe, Twilio
-│       └── config/              ← DB, env, payment, redis config
-│
-└── docs/                        ← Team documentation
-```
-
----
-
-## Branch Rules — CRITICAL
-
-| Branch | Rule |
-|---|---|
-| `main` | Never touch. Production only. |
-| `develop` | Never push directly. Always open a PR. |
-| `frontend-mvp` | Interactive prototype. Hossam + Manus work here. |
-| `feature/claude-*` | **Your branch prefix.** Always branch off `develop`. |
-
-**Your workflow every session:**
-```bash
-git checkout develop
-git pull origin develop
-git checkout -b feature/claude-[what-you-are-doing]
-# do your work
-git add .
-git commit -m "feat(scope): description"
-git push origin feature/claude-[what-you-are-doing]
-# then open a PR to develop on GitHub
-```
-
-**Commit format** (Conventional Commits — enforced by CI):
-```
-feat(buyer): add product detail page with image gallery
-fix(auth): handle expired JWT refresh token edge case
-style(seller): apply brand colors to dashboard header
-```
-
----
-
-## Design System — Apply This to Every Screen You Touch
+## Design System — Non-Negotiable
 
 ### Brand Colors
 ```css
---brand-navy:   #0F4C81   /* Primary — headers, active states, CTAs */
---brand-orange: #FF6B35   /* Accent — badges, highlights, price tags */
---brand-white:  #FAFAF8   /* Background */
---brand-gray:   #6B7280   /* Secondary text */
---brand-light:  #F0F4F8   /* Card backgrounds, input fills */
+--navy:       #0F4C81   /* Primary — headers, CTAs, nav background */
+--orange:     #FF6B35   /* Accent — badges, highlights, hover states */
+--cream:      #FAFAF5   /* Page background — warm white, not pure white */
+--charcoal:   #1A1A2E   /* Dark text — richer than pure black */
+--gray-mid:   #6B7280   /* Secondary text, borders */
+--gray-light: #F0F4F8   /* Card backgrounds, subtle sections */
 ```
 
 ### Typography
-- **Display / Headings:** Syne (Google Font) — bold, geometric
-- **Body / UI:** Inter — clean, readable
-- **Arabic text:** Noto Sans Arabic — always use when rendering Arabic strings
+```
+Headings (h1–h3):  Syne, 700–800 weight — geometric, confident
+Body text:          Inter, 400–500 weight — clean, readable
+Arabic strings:     Noto Sans Arabic — always, no exceptions
+Accent/labels:      Syne, 600 weight, letter-spacing: 0.05em
+```
 
-### Mobile-First Rules
-- All buyer/seller screens are **mobile-first** — max-width 430px, centered on desktop
-- Bottom navigation bar height: 56px — always account for this with `pb-14` on page content
-- Touch targets: minimum 44×44px
-- No hover-only interactions — everything must work on touch
+### Design Principles
+1. **Not centered purple gradient** — avoid the generic AI-generated look. Use asymmetric layouts, diagonal section dividers, and off-center compositions.
+2. **Moroccan warmth** — the cream background, warm shadows, and occasional geometric Moroccan pattern motifs (zellige-inspired) give it cultural identity without being cliché.
+3. **Mobile-first** — 60%+ of Moroccan internet users are on mobile. Every section must look perfect at 390px before you think about desktop.
+4. **Depth over flatness** — use layered cards, subtle drop shadows (`shadow-lg`), and background texture (a very subtle noise grain at 3% opacity) rather than flat color blocks.
+5. **Motion with purpose** — every animation must have a reason. Scroll-triggered reveals for sections. Hover lifts for cards. No looping decorative animations that distract.
 
-### Component Patterns
-- Cards: `rounded-2xl shadow-sm border border-gray-100 bg-white`
-- Primary button: `bg-[#0F4C81] text-white rounded-xl font-semibold`
-- Price display: always `MAD {amount}` — never just numbers
-- Loading state: use the existing `<Spinner />` from `components/ui/Spinner.tsx`
-- Empty state: centered illustration + heading + subtext + CTA button
-
-### What Already Exists — Check Before Building
-Before creating any new component, check these:
-- `components/ui/` — Card, Modal, Spinner, button
-- `components/shared/` — BottomTabBar, Navbar, LanguageSwitcher, OfflineIndicator
-- `components/buyer/` — ProductCard, StoreCard
-- `lib/api/endpoints.ts` — ALL API calls are already defined here, use them
-- `lib/hooks/useAuth.ts` — authentication state
-- `lib/hooks/useApi.ts` — data fetching wrapper
-- `contexts/AuthContext.tsx` — auth context
+### Section Layout Order (page.tsx imports these in order)
+```
+1. <Navbar />              ← Sticky, transparent → solid on scroll
+2. <Hero />                ← Full-height, phone mockup, animated tagline
+3. <HowItWorks />          ← 3-step flow with animated connectors
+4. <Features />            ← Feature grid with icon cards
+5. <ForSellers />          ← Split layout: text left, form/CTA right
+6. <CasablancaMap />       ← Visual map section showing neighborhoods
+7. <Footer />              ← Links, social, language switcher
+```
 
 ---
 
-## API Contract
+## Framer Motion — Animation Rules
 
-The backend runs at `http://localhost:5000` in development. The frontend API client is at `lib/api/client.ts` — use it for all requests, never use raw `fetch`.
+Install is already in `package.json`. Import: `import { motion, useInView, useScroll, useTransform } from 'framer-motion'`
 
-**All API calls go through `lib/api/endpoints.ts`.** If an endpoint you need doesn't exist there, add it to that file — do not inline API calls in page components.
+**Standard variants to reuse across all sections:**
 
-**Auth:** JWT stored in localStorage. The API client automatically attaches the Bearer token. Use `useAuth()` hook to check authentication state.
+```typescript
+// Fade up — use for most text and card entrances
+export const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } }
+}
 
-**Test credentials (development):**
-- Buyer: `buyer@example.com` / `password123`
-- Seller: `seller@example.com` / `password123`
-- Admin: `admin@example.com` / `password123`
+// Stagger container — wrap lists of cards
+export const staggerContainer = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1 } }
+}
 
----
+// Scale in — use for feature icons and badges
+export const scaleIn = {
+  hidden: { opacity: 0, scale: 0.85 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.4, ease: 'easeOut' } }
+}
+```
 
-## Current Screen Status
-
-| Screen | Path | Status |
-|---|---|---|
-| Login | `/auth/login` | ✅ Working — basic UI, needs design polish |
-| Register | `/auth/register` | ✅ Working — basic UI |
-| OTP Verify | `/auth/verify-otp` | ✅ Working — basic UI |
-| Buyer Dashboard | `/buyer/dashboard` | ⚠️ Placeholder — shows name/role only |
-| Discover (Stores) | `/buyer/discover` | ⚠️ Placeholder — needs real store cards |
-| Store Detail | `/buyer/discover/storeId` | ⚠️ Placeholder |
-| Map | `/buyer/map` | ⚠️ Placeholder — Google Maps not wired |
-| Cart | `/buyer/cart` | ⚠️ Placeholder |
-| Checkout | `/buyer/checkout` | ⚠️ Placeholder |
-| Orders | `/buyer/orders` | ⚠️ Placeholder |
-| LKRIDI | `/buyer/lkridi` | ⚠️ Placeholder |
-| Buyer Profile | `/buyer/profile` | ⚠️ Placeholder |
-| Seller Dashboard | `/seller/dashboard` | ⚠️ Placeholder |
-| Seller Stores | `/seller/stores` | ⚠️ Placeholder |
-| Seller Products | `/seller/stores/storeId/products` | ⚠️ Placeholder |
-| Admin Dashboard | `/admin/dashboard` | ⚠️ Placeholder |
-
-**Priority order for UI work:** Buyer Dashboard → Discover → Store Detail → Map → Seller Dashboard
+**Rules:**
+- Always use `useInView({ once: true, margin: '-80px' })` so animations trigger once as the user scrolls down
+- Duration: 0.3–0.5s for most elements, never more than 0.7s
+- Never animate `width` or `height` — animate `transform` and `opacity` only (GPU-accelerated)
+- Always add `will-change: transform` via Tailwind's `will-change-transform` on animated elements
+- Wrap all motion in: `const prefersReduced = useReducedMotion()` — if true, skip animations
 
 ---
 
-## LKRIDI — The Core Feature
+## 21st.dev MCP — How to Use
 
-LKRIDI is Moul7anout's built-in installment payment system (like BNPL but for Moroccan local commerce). When a buyer checks out, they can choose to pay in 3× or 6× monthly installments. The seller approves or declines. This is a key differentiator — treat it as a first-class feature, not an afterthought.
+When you have the 21st.dev MCP configured, use it to pull components. **Always adapt them:**
 
-**LKRIDI flow:** Buyer selects installment plan at checkout → Seller receives request in `/seller/lkridi/requests` → Seller approves → Monthly payment schedule is created → Background job (`lkridiAutoRepayment.job.ts`) handles automatic deductions.
+1. Replace any blue/purple with `#0F4C81`
+2. Replace any red/pink accent with `#FF6B35`
+3. Change background from pure white to `#FAFAF5`
+4. Remove any `max-w-7xl mx-auto` desktop-only constraints — keep mobile-first
+5. Add Framer Motion entrance animation using the standard variants above
+6. Place the result in `components/sections/` or `components/ui/` as appropriate
 
----
-
-## Tools Available for UI Work
-
-When Hossam asks you to improve the UI, you have access to:
-
-- **Framer Motion** — install with `npm install framer-motion` if not present. Use for: page transitions, card entrance animations, button press feedback, bottom sheet slides.
-- **21st.dev MCP** — if configured, use it to pull production-ready components. Always adapt them to the brand colors and mobile-first rules above.
-- **Lucide React** — icon library, already available. Import: `import { IconName } from 'lucide-react'`
-- **Tailwind CSS 4** — already configured. Use `@theme inline` blocks in globals.css for custom tokens.
-
-**Animation rules:**
-- Duration: 150–300ms for micro-interactions, 300–500ms for page transitions
-- Easing: `ease-out` for entrances, `ease-in` for exits
-- Never animate more than 2 properties simultaneously on mobile
-- Respect `prefers-reduced-motion` — wrap all animations in a check
+**Best components to pull from 21st.dev for this project:**
+- Animated hero with floating elements
+- Feature grid with icon cards
+- Testimonial / social proof section
+- Sticky navigation with blur backdrop
+- Animated step/timeline component (for HowItWorks)
+- Footer with newsletter input
 
 ---
 
-## Coordination with Manus
+## String Tune — Copy Guidelines
 
-Manus (the other AI working on this project) handles:
-- CI/CD fixes and GitHub Actions
-- Architecture decisions and complex planning
-- The `frontend-mvp` prototype (separate React + Vite app in `/home/ubuntu/moul7anout/`)
-- Team documentation
+When using String Tune to generate copy, always specify:
 
-You (Claude) handle:
-- Frontend screen implementation in `frontend/app/`
-- Component creation in `frontend/components/`
-- UI polish and design system application
-- API integration (connecting screens to `lib/api/endpoints.ts`)
+- **Tone:** Warm, confident, local — not corporate. Speaks like a trusted neighbor, not a Silicon Valley startup.
+- **Language:** Generate in English first, then Arabic (Darija-influenced Modern Standard), then French
+- **Brand voice keywords:** Local, trusted, fast, Moroccan, neighborhood, community
+- **Avoid:** "Revolutionary", "disruptive", "world-class", "seamless" — too generic
 
-**To avoid conflicts:** Manus works on `frontend-mvp` branch. You work on `feature/claude-*` branches off `develop`. We never edit the same files at the same time.
+**Key copy that must appear on the site:**
 
-If you are unsure whether a file has been recently modified by Manus, check: `git log --oneline -10 -- [filename]`
-
----
-
-## What Hossam Expects
-
-- **Never break CI.** Before pushing, mentally check: does this TypeScript compile? Are all imports valid?
-- **Every page must have `export const dynamic = 'force-dynamic'`** if it uses `useQuery`, `useEffect`, `localStorage`, or any browser API.
-- **Every page must have `'use client'`** at the top if it uses any React hooks.
-- **No hardcoded English strings** in new screens — use the translation keys from `messages/en.json` via `next-intl`.
-- **Mobile first, always.** Test at 390px width mentally before considering desktop.
-- **Ask before refactoring.** If you think a file needs to be restructured, describe the change and wait for approval. Do not silently rewrite working code.
+| Element | English | Arabic | French |
+|---|---|---|---|
+| App name | Moul7anout | مول الحانوت | Moul7anout |
+| Tagline | Your neighborhood. Your market. | سوقك. حيّك. | Ton quartier. Ton marché. |
+| Hero subtext | Discover stores, buy local, pay your way. | اكتشف المتاجر، اشتري محلياً، ادفع كيف تريد. | Découvrez les commerces, achetez local, payez à votre façon. |
+| LKRIDI CTA | Pay in 3× with LKRIDI | ادفع على 3 أقساط مع لكريدي | Payez en 3× avec LKRIDI |
+| Seller CTA | List your store for free | أضف متجرك مجاناً | Ajoutez votre boutique gratuitement |
 
 ---
 
-*Last updated: April 2026 — Moul7anout Team*
+## The Hero Section — Most Important
+
+The Hero is the first thing visitors see. It must do 5 things:
+1. Communicate what the app is in under 3 seconds
+2. Show the app visually (phone mockup — use a realistic iPhone frame SVG or PNG)
+3. Have two clear CTAs: **Download App** (orange button) and **Join as Seller** (outlined navy button)
+4. Feel Moroccan — warm cream background, subtle zellige-pattern texture in the background at low opacity
+5. Animate on load — headline words stagger in, phone mockup slides up from below
+
+**Hero layout (desktop):** Left half = headline + subtext + CTAs + trust badges (e.g., "15+ neighborhoods · 500+ stores · LKRIDI payments"). Right half = phone mockup floating with a subtle shadow and slow floating animation (y: 0 → -12px → 0, 4s loop, ease-in-out).
+
+**Hero layout (mobile):** Phone mockup at top, text below, CTAs stacked full-width.
+
+---
+
+## LKRIDI — Explain It Clearly
+
+LKRIDI is the most unique feature. Many visitors won't know what it is. The website must explain it simply:
+
+> "Can't pay all at once? No problem. LKRIDI lets you split your purchase into 3 or 6 monthly payments — accepted by local stores, no bank required."
+
+Show it as a visual: a product price (e.g., MAD 1,500) split into 3 cards showing MAD 500/month each, with a checkmark on the first one.
+
+---
+
+## Casablanca Neighborhoods to Reference
+
+The site should feel hyper-local. Use these neighborhood names naturally in copy and the map section:
+Maarif · Gauthier · Anfa · Ain Diab · Hay Hassani · Derb Sultan · Bourgogne · Sidi Belyout · Oulfa · Bernoussi · Sidi Maarouf · Bouskoura
+
+---
+
+## What NOT to Do
+
+- Do not add any backend API calls — this is a static marketing site
+- Do not use `useAuth` or any auth context — not needed here
+- Do not add a login/register flow — just a "Join as Seller" form that shows a success toast (no real submission)
+- Do not use purple, teal, or any color outside the brand palette
+- Do not use Inter for headings — Syne only for h1–h3
+- Do not center every section — vary the layout (left-aligned, right-aligned, asymmetric grid)
+- Do not add more than 6 sections — keep it focused
+
+---
+
+## Commit Format
+
+```
+feat(website): add Hero section with Framer Motion entrance animation
+feat(website): add HowItWorks 3-step animated flow
+style(website): apply brand colors to Navbar
+fix(website): correct mobile layout for Features grid
+```
+
+---
+
+*Moul7anout Website — April 2026*
