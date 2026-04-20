@@ -73,7 +73,7 @@ function FooterLangSwitcher() {
           key={l}
           ref={(el) => { refs.current[i] = el; }}
           onClick={() => setLang(l)}
-          className={`relative z-10 text-xs font-inter font-semibold px-3 py-1.5 rounded-full transition-colors duration-200 min-h-[44px] ${
+          className={`relative z-10 text-xs font-inter font-semibold px-3 py-1.5 rounded-full transition-colors duration-200 min-h-[32px] ${
             lang === l ? "text-white" : "text-white/60 hover:text-white"
           }`}
         >
