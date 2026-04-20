@@ -1,30 +1,38 @@
 import type { Metadata } from "next";
-import { Syne, Plus_Jakarta_Sans } from "next/font/google";
+import { Syne, Inter, Noto_Sans_Arabic } from "next/font/google";
 import "./globals.css";
 
-const syne = Syne({ 
+const syne = Syne({
   subsets: ["latin"],
   variable: "--font-syne",
+  weight: ["400", "600", "700", "800"],
 });
 
-const jakarta = Plus_Jakarta_Sans({ 
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-jakarta",
+  variable: "--font-inter",
+  weight: ["400", "500", "600"],
+});
+
+const notoArabic = Noto_Sans_Arabic({
+  subsets: ["arabic"],
+  variable: "--font-arabic",
+  weight: ["400", "500", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "Moul7anout — Le Souk Digital Marocain",
-  description: "Découvrez les commerçants locaux, les kiosques mobiles et le système Lkridi en temps réel.",
+  title: "Moul7anout — Your Neighborhood Market",
+  description: "Discover local stores, buy local, pay your way. The Moroccan neighborhood marketplace.",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="fr" className="scroll-smooth">
-      <body className="${syne.variable} ${jakarta.variable} font-jakarta antialiased bg-white text-[#0F4C81]">
+      <body
+        className={`${syne.variable} ${inter.variable} ${notoArabic.variable} font-inter antialiased bg-cream text-charcoal`}
+      >
         {children}
       </body>
     </html>
