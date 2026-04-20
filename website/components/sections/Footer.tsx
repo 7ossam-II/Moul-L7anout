@@ -67,7 +67,7 @@ function FooterLangSwitcher() {
           key={l}
           ref={(el) => { refs.current[i] = el; }}
           onClick={() => setLang(l)}
-          className={`relative z-10 text-xs font-inter font-semibold px-3 py-1.5 rounded-full transition-colors duration-200 min-h-[32px] ${
+          className={`relative z-10 text-xs font-inter font-semibold px-3 py-1.5 rounded-full transition-colors duration-200 min-h-[44px] ${
             lang === l ? "text-white" : "text-white/60 hover:text-white"
           }`}
         >
@@ -157,7 +157,7 @@ export default function Footer() {
                   key={label}
                   href={href}
                   aria-label={label}
-                  className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white/60 min-h-[40px]"
+                  className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-white/60 min-h-[48px]"
                   whileHover={{ scale: 1.15, backgroundColor: "rgba(255,107,53,0.2)", color: "#FF6B35" }}
                   whileTap={{ scale: 0.92 }}
                   transition={spring}
