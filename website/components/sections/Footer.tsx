@@ -17,8 +17,12 @@ const socials = [
   { icon: Facebook, href: "#", label: "Facebook" },
 ];
 
+const ORANGE = "#FF6B35";
+const ORANGE_BG = "rgba(255,107,53,0.2)";
+const EASE = [0.25, 0.46, 0.45, 0.94] as const;
+const spring = { type: "spring", stiffness: 500, damping: 30 } as const;
+
 const languages = ["FR", "AR", "EN"];
-const spring = { type: "spring", stiffness: 500, damping: 30 };
 
 function FooterNavLink({ label, href }: { label: string; href: string }) {
   const [hovered, setHovered] = useState(false);
@@ -31,10 +35,11 @@ function FooterNavLink({ label, href }: { label: string; href: string }) {
     >
       {label}
       <motion.span
-        className="absolute bottom-0 left-0 h-[1.5px] bg-white rounded-full"
-        initial={{ width: 0 }}
-        animate={{ width: hovered ? "100%" : 0 }}
-        transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="absolute bottom-0 left-0 h-[1.5px] w-full bg-white rounded-full"
+        initial={{ scaleX: 0, originX: 0 }}
+        animate={{ scaleX: hovered ? 1 : 0, originX: 0 }}
+        style={{ transformOrigin: "left" }}
+        transition={{ duration: 0.25, ease: EASE }}
       />
     </a>
   );
@@ -61,6 +66,7 @@ function FooterLangSwitcher() {
         className="absolute top-1 bottom-1 bg-orange rounded-full z-0"
         animate={{ left: pillLeft, width: pillWidth }}
         transition={spring}
+        style={{ willChange: "transform" }}
       />
       {languages.map((l, i) => (
         <button
@@ -87,7 +93,7 @@ export default function Footer() {
     visible: (i: number) => ({
       opacity: 1,
       y: 0,
-      transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94], delay: i * 0.1 },
+      transition: { duration: 0.5, ease: EASE, delay: i * 0.1 },
     }),
   };
 
@@ -158,7 +164,7 @@ export default function Footer() {
                   href={href}
                   aria-label={label}
                   className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-white/60 min-h-[48px]"
-                  whileHover={{ scale: 1.15, backgroundColor: "rgba(255,107,53,0.2)", color: "#FF6B35" }}
+                  whileHover={{ scale: 1.15, backgroundColor: ORANGE_BG, color: ORANGE }}
                   whileTap={{ scale: 0.92 }}
                   transition={spring}
                 >
