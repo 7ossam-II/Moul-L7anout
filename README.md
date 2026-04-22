@@ -16,7 +16,7 @@
 
 <br />
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=0F4C81&height=40&text=The%20Vision&fontSize=20&fontColor=ffffff&fontAlign=10&fontAlignY=50" alt="The Vision" width="100%" />
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0F4C81&height=40&text=The%20Vision&fontSize=20&fontColor=ffffff&fontAlign=15&fontAlignY=50" alt="The Vision" width="100%" />
 
 Moul7anout is not just an app; it is a **Digital Infrastructure** for the traditional Moroccan neighborhood. We take the centuries-old trust of the "Moul L7anout" (local shopkeeper) and scale it using modern technology to solve real-world problems for millions of Moroccans.
 
@@ -24,7 +24,7 @@ By bridging the gap between traditional commerce and modern e-commerce, we are c
 
 <br />
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=0F4C81&height=40&text=Core%20Value%20Propositions&fontSize=20&fontColor=ffffff&fontAlign=10&fontAlignY=50" alt="Core Value Propositions" width="100%" />
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0F4C81&height=40&text=Core%20Value%20Propositions&fontSize=20&fontColor=ffffff&fontAlign=20&fontAlignY=50" alt="Core Value Propositions" width="100%" />
 
 ### The Neighborhood Marketplace
 A seamless digital bridge connecting residents with their local stores. Discovery, ordering, and delivery—optimized for the Moroccan urban fabric.
@@ -37,7 +37,7 @@ Real-time tracking and management for mobile neighborhood vendors, ensuring they
 
 <br />
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=0F4C81&height=40&text=Architecture%20Overview&fontSize=20&fontColor=ffffff&fontAlign=10&fontAlignY=50" alt="Architecture Overview" width="100%" />
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0F4C81&height=40&text=Architecture%20Overview&fontSize=20&fontColor=ffffff&fontAlign=18&fontAlignY=50" alt="Architecture Overview" width="100%" />
 
 ```ascii
 ┌─────────────────────────────────────────────────────────────────┐
@@ -66,7 +66,7 @@ Real-time tracking and management for mobile neighborhood vendors, ensuring they
 
 <br />
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=0F4C81&height=40&text=Why%20Moul7anout?&fontSize=20&fontColor=ffffff&fontAlign=10&fontAlignY=50" alt="Why Moul7anout?" width="100%" />
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0F4C81&height=40&text=Why%20Moul7anout?&fontSize=20&fontColor=ffffff&fontAlign=15&fontAlignY=50" alt="Why Moul7anout?" width="100%" />
 
 | Feature | Description | Impact |
 |---------|-------------|--------|
@@ -77,7 +77,7 @@ Real-time tracking and management for mobile neighborhood vendors, ensuring they
 
 <br />
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=0F4C81&height=40&text=Strategic%20Roadmap&fontSize=20&fontColor=ffffff&fontAlign=10&fontAlignY=50" alt="Strategic Roadmap" width="100%" />
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0F4C81&height=40&text=Strategic%20Roadmap&fontSize=20&fontColor=ffffff&fontAlign=16&fontAlignY=50" alt="Strategic Roadmap" width="100%" />
 
 <div align="center">
   <img src="https://img.shields.io/badge/Phase_1-Completed-13aa52?style=for-the-badge" alt="Phase 1" />
@@ -95,7 +95,7 @@ Real-time tracking and management for mobile neighborhood vendors, ensuring they
 
 <br />
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=0F4C81&height=40&text=Tech%20Stack&fontSize=20&fontColor=ffffff&fontAlign=10&fontAlignY=50" alt="Tech Stack" width="100%" />
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0F4C81&height=40&text=Tech%20Stack&fontSize=20&fontColor=ffffff&fontAlign=12&fontAlignY=50" alt="Tech Stack" width="100%" />
 
 <div align="center">
   <br />
@@ -107,7 +107,7 @@ Real-time tracking and management for mobile neighborhood vendors, ensuring they
 
 <br />
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=0F4C81&height=40&text=Contact%20&%20Information&fontSize=20&fontColor=ffffff&fontAlign=10&fontAlignY=50" alt="Contact & Information" width="100%" />
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0F4C81&height=40&text=Contact%20%26%20Information&fontSize=20&fontColor=ffffff&fontAlign=18&fontAlignY=50" alt="Contact & Information" width="100%" />
 
 For investment inquiries, partnerships, or more information, please visit our official website:
 
