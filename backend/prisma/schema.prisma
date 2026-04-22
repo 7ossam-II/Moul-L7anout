@@ -1,0 +1,358 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ========== ENUMS ==========
+enum Role {
+  BUYER
+  SELLER
+  ADMIN
+  DELIVERY_PERSON
+  CASHIER
+}
+
+enum OrderStatus {
+  PENDING
+  QR_GENERATED
+  ACCOMPLISHED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  ONLINE
+  OFFLINE
+  LKRIDI
+}
+
+enum EscrowStatus {
+  HELD
+  RELEASED
+  REFUNDED
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  DENIED
+}
+
+enum RepaymentStatus {
+  UNPAID
+  PAID
+}
+
+enum QrType {
+  PICKUP
+  DELIVERY
+}
+
+enum StoreType {
+  RESTAURANT
+  MOVING_KIOSK
+  FOOD_PRODUCTS
+  HARDWARE_STORE
+  CLOTHING_STORE
+  BOOK_STORE
+  MILK_STORE
+  PHARMACY
+  SUPERMARKET
+  SPICES_STORE
+}
+
+// ========== USER SUPERTYPE ==========
+model User {
+  id                   Int      @id @default(autoincrement())
+  phone                String   @unique
+  fullName             String
+  languagePref         String   @default("English")
+  notificationSettings Json? // Store JSON for notification preferences
+  verified             Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  // Relations to subtypes
+  buyer          Buyer?
+  seller         Seller?
+  admin          Admin?
+  deliveryPerson DeliveryPerson?
+  cashier        Cashier?
+
+  // Messages sent and received
+  sentMessages     ChatMessage[] @relation("sender")
+  receivedMessages ChatMessage[] @relation("receiver")
+
+  @@map("users")
+}
+
+// ========== SUBTYPES ==========
+model Buyer {
+  userId        Int     @id
+  bankCardToken String? // Optional, from payment gateway
+  user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  orders            Order[]
+  lkridiMemberships LkridiMembership[]
+  ratings           Rating[]
+
+  @@map("buyers")
+}
+
+model Seller {
+  userId        Int     @id
+  storeName     String
+  idDocumentUrl String
+  adminApproved Boolean @default(false)
+  lkridiEnabled Boolean @default(false)
+  user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  stores                   Store[]
+  lkridiMembershipsGranted LkridiMembership[]
+  lkridiRecords            LkridiRecord[]
+  videoAds                 VideoAd[]
+  createdCashiers          Cashier[]          @relation("creator")
+
+  @@map("sellers")
+}
+
+model Admin {
+  userId      Int  @id
+  permissions Json // Store permissions array
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("admins")
+}
+
+model DeliveryPerson {
+  userId      Int     @id
+  isAvailable Boolean @default(true)
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  deliveries Delivery[]
+
+  @@map("delivery_persons")
+}
+
+model Cashier {
+  userId            Int @id
+  storeId           Int
+  createdBySellerId Int
+
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  store   Store  @relation(fields: [storeId], references: [id])
+  creator Seller @relation("creator", fields: [createdBySellerId], references: [userId])
+
+  @@unique([storeId, userId])
+  @@map("cashiers")
+}
+
+// ========== CORE BUSINESS ENTITIES ==========
+model Store {
+  id                  Int       @id @default(autoincrement())
+  sellerId            Int
+  address             String
+  locationLat         Float // Latitude
+  locationLng         Float // Longitude
+  openStatus          Boolean   @default(true)
+  storeType           StoreType
+  deliveryFlatFee     Decimal?  @db.Decimal(10, 2)
+  liveTrackingEnabled Boolean   @default(false)
+  ratingAvg           Float?    @default(0)
+
+  seller   Seller    @relation(fields: [sellerId], references: [userId])
+  products Product[]
+  orders   Order[]
+  ratings  Rating[]
+  cashiers Cashier[]
+
+  @@index([sellerId])
+  @@index([locationLat, locationLng])
+  @@map("stores")
+}
+
+model Product {
+  id                       Int       @id @default(autoincrement())
+  storeId                  Int
+  name                     String
+  price                    Decimal   @db.Decimal(10, 2)
+  photoUrl                 String?
+  quantityAvailable        Int? // Optional inventory
+  deliveryAvailable        Boolean   @default(false)
+  maxPerDelivery           Int? // FR5.1 - max quantity per delivery
+  availableStatus          Boolean   @default(true)
+  expectedAvailabilityDate DateTime?
+
+  store      Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@index([storeId])
+  @@map("products")
+}
+
+model Order {
+  id            Int           @id @default(autoincrement())
+  buyerId       Int
+  storeId       Int
+  totalAmount   Decimal       @db.Decimal(10, 2)
+  paymentMethod PaymentMethod
+  orderStatus   OrderStatus   @default(PENDING)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  buyer              Buyer               @relation(fields: [buyerId], references: [userId])
+  store              Store               @relation(fields: [storeId], references: [id])
+  orderItems         OrderItem[]
+  paymentTransaction PaymentTransaction?
+  qrCodes            QRCode[]
+  lkridiRecord       LkridiRecord?
+  delivery           Delivery?
+  rating             Rating?
+  chatMessages       ChatMessage[]
+
+  @@index([buyerId])
+  @@index([storeId])
+  @@map("orders")
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Int
+  unitPrice Decimal @db.Decimal(10, 2)
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([orderId, productId])
+  @@map("order_items")
+}
+
+model PaymentTransaction {
+  id           Int          @id @default(autoincrement())
+  orderId      Int          @unique
+  gatewayRef   String
+  amount       Decimal      @db.Decimal(10, 2)
+  escrowStatus EscrowStatus @default(HELD)
+  timestamp    DateTime     @default(now())
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@map("payment_transactions")
+}
+
+model QRCode {
+  id         Int       @id @default(autoincrement())
+  orderId    Int
+  sellerId   Int
+  token      String    @unique
+  expiryTime DateTime? // Null for offline cash
+  usedFlag   Boolean   @default(false)
+  type       QrType    @default(PICKUP)
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@index([orderId])
+  @@index([sellerId])
+  @@map("qr_codes")
+}
+
+// ========== LKRIDI LOAN SYSTEM ==========
+model LkridiMembership {
+  id             Int            @id @default(autoincrement())
+  buyerId        Int
+  sellerId       Int
+  approvalStatus ApprovalStatus @default(PENDING)
+  creditLimit    Decimal?       @db.Decimal(10, 2) // Optional - null = no preset limit
+
+  buyer  Buyer  @relation(fields: [buyerId], references: [userId])
+  seller Seller @relation(fields: [sellerId], references: [userId])
+
+  @@unique([buyerId, sellerId])
+  @@map("lkridi_memberships")
+}
+
+model LkridiRecord {
+  id              Int             @id @default(autoincrement())
+  orderId         Int             @unique
+  sellerId        Int
+  amountOwed      Decimal         @db.Decimal(10, 2)
+  deadline        DateTime?
+  repaymentStatus RepaymentStatus @default(UNPAID)
+  autoDebitAgreed Boolean         @default(false)
+
+  order  Order  @relation(fields: [orderId], references: [id])
+  seller Seller @relation(fields: [sellerId], references: [userId])
+
+  @@map("lkridi_records")
+}
+
+// ========== DELIVERY SYSTEM ==========
+model Delivery {
+  id               Int      @id @default(autoincrement())
+  orderId          Int      @unique
+  deliveryPersonId Int
+  timeSlot         DateTime
+  status           String   @default("ASSIGNED") // ASSIGNED, IN_PROGRESS, COMPLETED
+
+  order          Order          @relation(fields: [orderId], references: [id])
+  deliveryPerson DeliveryPerson @relation(fields: [deliveryPersonId], references: [userId])
+
+  @@index([deliveryPersonId])
+  @@map("deliveries")
+}
+
+// ========== RATINGS ==========
+model Rating {
+  id      Int     @id @default(autoincrement())
+  buyerId Int
+  storeId Int
+  score   Int // 1-5
+  comment String?
+  orderId Int?    @unique // One rating per order
+
+  buyer Buyer  @relation(fields: [buyerId], references: [userId])
+  store Store  @relation(fields: [storeId], references: [id])
+  order Order? @relation(fields: [orderId], references: [id])
+
+  @@index([storeId])
+  @@map("ratings")
+}
+
+// ========== CHAT ==========
+model ChatMessage {
+  id         Int      @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  orderId    Int? // Optional - product-specific chat
+  content    String
+  timestamp  DateTime @default(now())
+
+  sender   User   @relation("sender", fields: [senderId], references: [id])
+  receiver User   @relation("receiver", fields: [receiverId], references: [id])
+  order    Order? @relation(fields: [orderId], references: [id])
+
+  @@index([senderId, receiverId])
+  @@map("chat_messages")
+}
+
+// ========== VIDEO ADS ==========
+model VideoAd {
+  id             Int            @id @default(autoincrement())
+  sellerId       Int
+  videoUrl       String
+  approvalStatus ApprovalStatus @default(PENDING)
+
+  seller Seller @relation(fields: [sellerId], references: [userId])
+
+  @@map("video_ads")
+}
