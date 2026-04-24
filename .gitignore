@@ -10,4 +10,9 @@ QWEN.md
 .claude/CLAUDE.md
 .claude/commands/
 .claude/skills/
-.claude/agents/.mcp.json
+.claude/agents/
+.clause/
+.mcp.json
+clauderead.md
+CLAUDE.md
+requirement.md

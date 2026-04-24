@@ -17,7 +17,6 @@ import type {
   Conversation,
   Notification,
   Dispute,
-  ApiResponse,
   StoreStats,
 } from '../types/api.types';
 
@@ -75,32 +74,32 @@ export const storesApi = {
       });
     }
     const query = queryParams.toString();
-    return apiClient.get<Store[]>(`/v1/stores${query ? `?${query}` : ''}`);
+    return apiClient.get<Store[]>(`/stores${query ? `?${query}` : ''}`);
   },
   
-  getById: (id: string) => 
-    apiClient.get<Store>(`/v1/stores/${id}`),
-  
+  getById: (id: string) =>
+    apiClient.get<Store>(`/stores/${id}`),
+
   getNearby: (lat: number, lng: number, radius?: number) => {
     const params = new URLSearchParams({ lat: String(lat), lng: String(lng) });
     if (radius) params.append('radius', String(radius));
-    return apiClient.get<Store[]>(`/v1/stores/nearby?${params.toString()}`);
+    return apiClient.get<Store[]>(`/stores?${params.toString()}`);
   },
-  
-  create: (data: Partial<Store>) => 
-    apiClient.post<Store>('/v1/stores', data as unknown as Record<string, unknown>),
-  
-  update: (id: string, data: Partial<Store>) => 
-    apiClient.put<Store>(`/v1/stores/${id}`, data as unknown as Record<string, unknown>),
-  
-  delete: (id: string) => 
-    apiClient.delete(`/v1/stores/${id}`),
-  
-  getMyStores: () => 
-    apiClient.get<Store[]>('/v1/stores/my-stores'),
-  
-  getStoreStats: (id: string) => 
-    apiClient.get<StoreStats>(`/v1/stores/${id}/stats`),
+
+  create: (data: Partial<Store>) =>
+    apiClient.post<Store>('/stores', data as unknown as Record<string, unknown>),
+
+  update: (id: string, data: Partial<Store>) =>
+    apiClient.put<Store>(`/stores/${id}`, data as unknown as Record<string, unknown>),
+
+  delete: (id: string) =>
+    apiClient.delete(`/stores/${id}`),
+
+  getMyStores: () =>
+    apiClient.get<Store[]>('/stores'),
+
+  getStoreStats: (id: string) =>
+    apiClient.get<StoreStats>(`/stores/${id}/stats`),
 };
 
 // ============================================
@@ -118,23 +117,23 @@ export const productsApi = {
       });
     }
     const query = queryParams.toString();
-    return apiClient.get<Product[]>(`/v1/products${query ? `?${query}` : ''}`);
+    return apiClient.get<Product[]>(`/stores/${params?.storeId ?? ''}/products${query ? `?${query}` : ''}`);
   },
   
-  getById: (id: string) => 
-    apiClient.get<Product>(`/v1/products/${id}`),
-  
+  getById: (id: string) =>
+    apiClient.get<Product>(`/products/${id}`),
+
   getCategories: () =>
-    apiClient.get<string[]>('/v1/products/categories'),
-  
-  create: (data: Partial<Product>) => 
-    apiClient.post<Product>('/v1/products', data as unknown as Record<string, unknown>),
-  
-  update: (id: string, data: Partial<Product>) => 
-    apiClient.put<Product>(`/v1/products/${id}`, data as unknown as Record<string, unknown>),
-  
-  delete: (id: string) => 
-    apiClient.delete(`/v1/products/${id}`),
+    apiClient.get<string[]>('/products/categories'),
+
+  create: (data: Partial<Product>) =>
+    apiClient.post<Product>('/products', data as unknown as Record<string, unknown>),
+
+  update: (id: string, data: Partial<Product>) =>
+    apiClient.put<Product>(`/products/${id}`, data as unknown as Record<string, unknown>),
+
+  delete: (id: string) =>
+    apiClient.delete(`/products/${id}`),
 };
 
 // ============================================
@@ -152,7 +151,7 @@ export const ordersApi = {
       });
     }
     const query = queryParams.toString();
-    return apiClient.get<Order[]>(`/v1/orders${query ? `?${query}` : ''}`);
+    return apiClient.get<Order[]>(`/orders${query ? `?${query}` : ''}`);
   },
   
   getMyOrders: (params?: { page?: number; limit?: number }) => {
@@ -165,20 +164,23 @@ export const ordersApi = {
       });
     }
     const query = queryParams.toString();
-    return apiClient.get<Order[]>(`/v1/orders/my-orders${query ? `?${query}` : ''}`);
+    return apiClient.get<Order[]>(`/orders/my-orders${query ? `?${query}` : ''}`);
   },
   
-  getById: (id: string) => 
-    apiClient.get<Order>(`/v1/orders/${id}`),
-  
-  create: (data: Partial<Order>) => 
-    apiClient.post<Order>('/v1/orders', data as unknown as Record<string, unknown>),
-  
-  updateStatus: (id: string, status: Order['status']) => 
-    apiClient.patch<Order>(`/v1/orders/${id}/status`, { status }),
-  
+  getById: (id: string) =>
+    apiClient.get<Order>(`/orders/${id}`),
+
+  create: (data: Partial<Order>) =>
+    apiClient.post<Order>('/orders', data as unknown as Record<string, unknown>),
+
+  updateStatus: (id: string, status: Order['status']) =>
+    apiClient.patch<Order>(`/orders/${id}/status`, { status }),
+
   cancel: (id: string, reason?: string) =>
-    apiClient.post<Order>(`/v1/orders/${id}/cancel`, { reason }),
+    apiClient.post<Order>(`/orders/${id}/cancel`, { reason }),
+
+  accomplish: (orderId: string, userId: number, role: 'BUYER' | 'SELLER') =>
+    apiClient.post<{ success: boolean; message: string }>(`/orders/${orderId}/accomplished`, { userId, role }),
 };
 
 // ============================================
@@ -254,15 +256,27 @@ export const deliveryApi = {
 // ============================================
 
 export const lkridiApi = {
-  getMembership: () => 
-    apiClient.get<LkridiMembership>('/v1/lkridi/membership'),
-  
-  requestMembership: (data: { type: 'customer' | 'store'; storeId?: string }) => 
-    apiClient.post<{ requestId: string; status: string }>('/v1/lkridi/request', data),
-  
-  getBalance: () => 
-    apiClient.get<{ balance: number; creditLimit: number; availableCredit: number }>('/v1/lkridi/balance'),
-  
+  getMembership: () =>
+    apiClient.get<LkridiMembership>('/lkridi/membership'),
+
+  requestMembership: (buyerId: number, sellerId: number) =>
+    apiClient.post<{ success: boolean; membershipId: number; approvalStatus: string }>('/lkridi/membership/request', { buyerId, sellerId }),
+
+  approveMembership: (membershipId: string, approved: boolean) =>
+    apiClient.post<{ success: boolean; approvalStatus: string }>(`/lkridi/membership/${membershipId}/approve`, { approved }),
+
+  createOrder: (data: { buyerId: number; storeId: number; items: { productId: number; quantity: number }[]; deadline: string }) =>
+    apiClient.post<{ success: boolean; orderId: number; amountOwed: number; orderStatus: string; qrCode: string }>('/lkridi/orders', data as unknown as Record<string, unknown>),
+
+  acceptOrder: (orderId: string) =>
+    apiClient.post<{ success: boolean; orderStatus: string }>(`/lkridi/orders/${orderId}/accept`, {}),
+
+  repayLoan: (orderId: string, buyerId: number, sellerId: number) =>
+    apiClient.post<{ success: boolean; message: string }>(`/lkridi/orders/${orderId}/repay`, { buyerId, sellerId }),
+
+  confirmPayment: (recordId: string) =>
+    apiClient.post<{ success: boolean; repaymentStatus: string }>(`/lkridi/records/${recordId}/confirm-payment`, {}),
+
   getTransactions: (params?: { page?: number; limit?: number }) => {
     const queryParams = new URLSearchParams();
     if (params) {
@@ -273,20 +287,8 @@ export const lkridiApi = {
       });
     }
     const query = queryParams.toString();
-    return apiClient.get(`/v1/lkridi/transactions${query ? `?${query}` : ''}`);
+    return apiClient.get(`/lkridi/records${query ? `?${query}` : ''}`);
   },
-  
-  makePayment: (amount: number) =>
-    apiClient.post<{ paymentId: string; amount: number; newBalance: number }>('/v1/lkridi/pay', { amount }),
-  
-  requestLkridiOrder: (data: { storeId: string; items: unknown[]; totalAmount: number }) =>
-    apiClient.post<{ requestId: string; status: string }>('/v1/lkridi/order/request', data),
-  
-  acceptLkridiOrder: (orderId: string) =>
-    apiClient.post<{ accepted: boolean; orderId: string }>(`/v1/lkridi/order/${orderId}/accept`, {}),
-  
-  markLoanAsPaid: (recordId: string) =>
-    apiClient.post<{ paid: boolean; recordId: string }>(`/v1/lkridi/record/${recordId}/mark-paid`, {}),
 };
 
 // ============================================
@@ -306,17 +308,17 @@ export const workerApi = {
   declineInvitation: (workerId: string) =>
     apiClient.post<{ declined: boolean }>(`/v1/workers/invitations/${workerId}/decline`, {}),
   
-  getStoreWorkers: (storeId: string) => 
-    apiClient.get<Worker[]>(`/v1/workers/stores/${storeId}/workers`),
-  
+  getStoreWorkers: (storeId: string) =>
+    apiClient.get<Worker[]>(`/stores/${storeId}/workers`),
+
   inviteWorker: (storeId: string, data: { email: string; name: string; phone?: string; permissions: Partial<WorkerPermissions> }) =>
-    apiClient.post<Worker>(`/v1/workers/stores/${storeId}/workers`, data as unknown as Record<string, unknown>),
-  
+    apiClient.post<Worker>(`/stores/${storeId}/workers`, data as unknown as Record<string, unknown>),
+
   updateWorkerPermissions: (storeId: string, workerId: string, permissions: Partial<WorkerPermissions>) =>
-    apiClient.put<Worker>(`/v1/workers/stores/${storeId}/workers/${workerId}`, { permissions }),
-  
+    apiClient.put<Worker>(`/stores/${storeId}/workers/${workerId}`, { permissions }),
+
   removeWorker: (storeId: string, workerId: string) =>
-    apiClient.delete<{ removed: boolean; workerId: string }>(`/v1/workers/stores/${storeId}/workers/${workerId}`),
+    apiClient.delete<{ removed: boolean; workerId: string }>(`/stores/${storeId}/workers/${workerId}`),
   
   checkPermission: (storeId: string, permission: keyof WorkerPermissions) =>
     apiClient.get<{ hasPermission: boolean }>(`/v1/workers/stores/${storeId}/check-permission?permission=${permission}`),
@@ -370,11 +372,11 @@ export const ratingsApi = {
       });
     }
     const query = queryParams.toString();
-    return apiClient.get<Rating[]>(`/v1/ratings/store/${storeId}${query ? `?${query}` : ''}`);
+    return apiClient.get<Rating[]>(`/stores/${storeId}/ratings${query ? `?${query}` : ''}`);
   },
   
   create: (data: { storeId: string; orderId: string; rating: number; comment?: string; isAnonymous?: boolean }) =>
-    apiClient.post<Rating>('/v1/ratings', data),
+    apiClient.post<Rating>('/ratings', data),
 };
 
 // ============================================
