@@ -1,138 +1,129 @@
 import { Request, Response } from 'express';
-import { User } from '../models/User';
-import jwt from 'jsonwebtoken';
-import { env } from '../config/env';
+import { prisma } from '../lib/prisma';
+import { generateToken } from '../utils/jwt';
+import { z } from 'zod';
+
+// Validation schemas
+const registerSchema = z.object({
+  phone: z.string().regex(/^(06|07)[0-9]{8}$/, 'Invalid Moroccan phone number'),
+  fullName: z.string().min(2).max(100),
+  role: z.enum(['BUYER', 'SELLER', 'ADMIN', 'DELIVERY_PERSON', 'CASHIER'])
+});
+
+const loginSchema = z.object({
+  phone: z.string().regex(/^(06|07)[0-9]{8}$/)
+});
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { phone, name, role = 'buyer' } = req.body;
+    const validated = registerSchema.parse(req.body);
 
-    if (!phone || !name) {
-      return res.status(400).json({
-        success: false,
-        message: 'Phone and name are required',
-      });
-    }
-
-    const existingUser = await User.findOne({ phone });
-    if (existingUser) {
-      return res.status(409).json({
-        success: false,
-        message: 'User with this phone already exists',
-      });
-    }
-
-    const user = new User({
-      phone,
-      name,
-      role,
-      isVerified: false,
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { phone: validated.phone }
     });
 
-    await user.save();
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        error: 'User already exists with this phone number'
+      });
+    }
 
-    const token = jwt.sign(
-      { userId: user._id, role: user.role },
-      env.JWT_SECRET || 'secret',
-      { expiresIn: (env.JWT_EXPIRE || '1h') as any }
-    );
+    // Create user
+    const user = await prisma.user.create({
+      data: {
+        phone: validated.phone,
+        fullName: validated.fullName,
+        role: validated.role,
+        verified: false   // will be set true after OTP in production
+      }
+    });
 
     res.status(201).json({
       success: true,
-      message: 'User registered successfully',
-      data: {
-        user: {
-          id: user._id,
-          phone: user.phone,
-          name: user.name,
-          role: user.role,
-        },
-        token,
-      },
+      user: {
+        id: user.id,
+        phone: user.phone,
+        fullName: user.fullName,
+        role: user.role,
+        verified: user.verified
+      }
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Registration failed',
-      error: error instanceof Error ? error.message : 'Unknown error',
-    });
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        error: 'Validation failed',
+        details: error.issues
+      });
+    }
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
   }
 };
 
 export const login = async (req: Request, res: Response) => {
   try {
-    const { phone } = req.body;
+    const { phone } = loginSchema.parse(req.body);
 
-    if (!phone) {
-      return res.status(400).json({
-        success: false,
-        message: 'Phone is required',
-      });
-    }
+    const user = await prisma.user.findUnique({
+      where: { phone }
+    });
 
-    const user = await User.findOne({ phone });
     if (!user) {
-      return res.status(401).json({
+      return res.status(404).json({
         success: false,
-        message: 'Invalid credentials',
+        error: 'User not found'
       });
     }
 
-    const token = jwt.sign(
-      { userId: user._id, role: user.role },
-      env.JWT_SECRET || 'secret',
-      { expiresIn: (env.JWT_EXPIRE || '1h') as any }
-    );
+    // For development, generate token directly (in production, verify OTP first)
+    const token = generateToken(user.id, user.role);
 
     res.json({
       success: true,
-      message: 'Login successful',
-      data: {
-        user: {
-          id: user._id,
-          phone: user.phone,
-          name: user.name,
-          role: user.role,
-        },
-        token,
-      },
+      token,
+      user: {
+        id: user.id,
+        phone: user.phone,
+        fullName: user.fullName,
+        role: user.role,
+        verified: user.verified
+      }
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Login failed',
-      error: error instanceof Error ? error.message : 'Unknown error',
-    });
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        error: 'Validation failed',
+        details: error.issues
+      });
+    }
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
   }
 };
 
 export const getCurrentUser = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).userId;
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-      });
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Not authenticated' });
     }
 
-    res.json({
-      success: true,
-      data: {
-        id: user._id,
-        phone: user.phone,
-        name: user.name,
-        role: user.role,
-        isVerified: user.isVerified,
-      },
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, phone: true, fullName: true, role: true, verified: true }
     });
+
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'User not found' });
+    }
+
+    res.json({ success: true, user });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch user',
-      error: error instanceof Error ? error.message : 'Unknown error',
-    });
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
   }
 };
