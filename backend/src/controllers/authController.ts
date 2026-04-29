@@ -30,13 +30,13 @@ export const register = async (req: Request, res: Response) => {
       });
     }
 
-    // Create user
+    // Create user (no subtype record – will be created on demand)
     const user = await prisma.user.create({
       data: {
         phone: validated.phone,
         fullName: validated.fullName,
         role: validated.role,
-        verified: false   // will be set true after OTP in production
+        verified: false
       }
     });
 
@@ -78,7 +78,6 @@ export const login = async (req: Request, res: Response) => {
       });
     }
 
-    // For development, generate token directly (in production, verify OTP first)
     const token = generateToken(user.id, user.role);
 
     res.json({

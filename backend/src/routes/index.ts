@@ -5,6 +5,7 @@ import * as productController from '../controllers/productController';
 import * as orderController from '../controllers/orderController';
 import { authMiddleware } from '../middleware/auth';
 
+console.log("Routes file loaded")
 const router = Router();
 
 // Health check
@@ -18,16 +19,23 @@ router.get('/health', (req, res) => {
     },
   });
 });
+router.post('/test-store', (req, res) => {
+  console.log('Test endpoint hit');
+  res.json({ success: true, message: 'Test works' });
+});
 
 // Auth routes
-router.post('/auth/register', authController.register);
+ router.post('/auth/register', authController.register);
 router.post('/auth/login', authController.login);
 router.get('/auth/me', authMiddleware, authController.getCurrentUser);
 
-// Store routes
+//Store routes
 router.get('/stores/nearby', storeController.getNearbyStores);
 router.get('/stores/:storeId', storeController.getStoreById);
-router.post('/stores', authMiddleware, storeController.createStore);
+router.post('/stores', (req, res, next) => {
+  console.log('Store route hit');
+  next();
+}, authMiddleware, storeController.createStore);
 
 // Product routes
 router.get('/stores/:storeId/products', productController.getProductsByStore);
