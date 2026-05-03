@@ -4,7 +4,9 @@ import * as storeController from '../controllers/storeController';
 import * as productController from '../controllers/productController';
 import * as orderController from '../controllers/orderController';
 import { authMiddleware } from '../middleware/auth';
+import * as sellerController from '../controllers/sellerController';
 
+console.log("Routes file loaded")
 const router = Router();
 
 // Health check
@@ -18,16 +20,23 @@ router.get('/health', (req, res) => {
     },
   });
 });
+router.post('/test-store', (req, res) => {
+  console.log('Test endpoint hit');
+  res.json({ success: true, message: 'Test works' });
+});
 
 // Auth routes
-router.post('/auth/register', authController.register);
+ router.post('/auth/register', authController.register);
 router.post('/auth/login', authController.login);
 router.get('/auth/me', authMiddleware, authController.getCurrentUser);
 
-// Store routes
+//Store routes
 router.get('/stores/nearby', storeController.getNearbyStores);
 router.get('/stores/:storeId', storeController.getStoreById);
-router.post('/stores', authMiddleware, storeController.createStore);
+router.post('/stores', (req, res, next) => {
+  console.log('Store route hit');
+  next();
+}, authMiddleware, storeController.createStore);
 
 // Product routes
 router.get('/stores/:storeId/products', productController.getProductsByStore);
@@ -38,6 +47,20 @@ router.post('/products', authMiddleware, productController.createProduct);
 router.post('/orders', authMiddleware, orderController.createOrder);
 router.get('/orders/:orderId', authMiddleware, orderController.getOrderById);
 router.get('/orders', authMiddleware, orderController.getMyOrders);
+// seller revenue route
+router.get('/seller/revenue/monthly',authMiddleware,sellerController.getMonthlyRevenue);
+//top customers
+router.get('/seller/top-customers', authMiddleware, sellerController.getTopCustomers);
+
+//video routes
+router.get('/seller/video-stats', authMiddleware, sellerController.getVideoStats);
+router.get('/seller/videos', authMiddleware, sellerController.getSellerVideos);
+
+//live tracking
+router.get('/seller/store/live-tracking', authMiddleware, sellerController.getLiveTracking);
+router.put('/seller/store/live-tracking', authMiddleware, sellerController.updateLiveTracking);
+
+
 
 // 404 for everything else
 router.use('*', (req, res) => {
