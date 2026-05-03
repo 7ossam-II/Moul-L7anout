@@ -348,10 +348,13 @@ model ChatMessage {
 
 // ========== VIDEO ADS ==========
 model VideoAd {
-  id             Int            @id @default(autoincrement())
+  id             Int      @id @default(autoincrement())
   sellerId       Int
   videoUrl       String
   approvalStatus ApprovalStatus @default(PENDING)
+  viewCount      Int      @default(0)   // new
+  likeCount      Int      @default(0)   // new
+  uploadedAt     DateTime @default(now())
 
   seller Seller @relation(fields: [sellerId], references: [userId])
 

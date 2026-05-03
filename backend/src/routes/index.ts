@@ -4,6 +4,7 @@ import * as storeController from '../controllers/storeController';
 import * as productController from '../controllers/productController';
 import * as orderController from '../controllers/orderController';
 import { authMiddleware } from '../middleware/auth';
+import * as sellerController from '../controllers/sellerController';
 
 console.log("Routes file loaded")
 const router = Router();
@@ -46,6 +47,20 @@ router.post('/products', authMiddleware, productController.createProduct);
 router.post('/orders', authMiddleware, orderController.createOrder);
 router.get('/orders/:orderId', authMiddleware, orderController.getOrderById);
 router.get('/orders', authMiddleware, orderController.getMyOrders);
+// seller revenue route
+router.get('/seller/revenue/monthly',authMiddleware,sellerController.getMonthlyRevenue);
+//top customers
+router.get('/seller/top-customers', authMiddleware, sellerController.getTopCustomers);
+
+//video routes
+router.get('/seller/video-stats', authMiddleware, sellerController.getVideoStats);
+router.get('/seller/videos', authMiddleware, sellerController.getSellerVideos);
+
+//live tracking
+router.get('/seller/store/live-tracking', authMiddleware, sellerController.getLiveTracking);
+router.put('/seller/store/live-tracking', authMiddleware, sellerController.updateLiveTracking);
+
+
 
 // 404 for everything else
 router.use('*', (req, res) => {
