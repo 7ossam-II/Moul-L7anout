@@ -202,88 +202,11 @@ function Sidebar({ isCollapsed, onToggle }: { isCollapsed: boolean; onToggle: ()
   );
 }
 
-// 🎬 NEW: Cinematic Welcome Component
-function CinematicWelcome({ onComplete }: { onComplete: () => void }) {
-  useEffect(() => {
-    // Auto-hide after 3 seconds
-    const timer = setTimeout(() => {
-      onComplete();
-    }, 3000);
-    
-    return () => clearTimeout(timer);
-  }, [onComplete]);
-
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden">
-      {/* Animated gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0F4C81] via-[#FF6B35] to-[#764ba2] animate-gradient-xy" />
-      
-      {/* Particle effect background */}
-      <div className="absolute inset-0">
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-white/30 rounded-full animate-float"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${3 + Math.random() * 2}s`
-            }}
-          />
-        ))}
-      </div>
-      
-      {/* Main content with cinematic animations */}
-      <div className="relative z-10 text-center animate-cinematic-slide-up">
-        <div className="mb-6 animate-cinematic-scale">
-          <div className="w-32 h-32 mx-auto bg-white/20 rounded-3xl flex items-center justify-center backdrop-blur-xl shadow-2xl animate-bounce-gentle">
-            <Store size={64} className="text-white" strokeWidth={1.5} />
-          </div>
-        </div>
-        
-        <h1 className="text-7xl md:text-8xl font-bold text-white mb-4 tracking-tight animate-cinematic-fade-in">
-          Hello Seller! 👋
-        </h1>
-        
-        <div className="overflow-hidden h-12">
-          <p className="text-2xl md:text-3xl text-white/90 font-light animate-cinematic-slide-up-delayed">
-            Welcome to your dashboard
-          </p>
-        </div>
-        
-        <div className="mt-8 flex justify-center gap-2 animate-cinematic-fade-in-delayed">
-          <div className="w-2 h-2 bg-white/60 rounded-full animate-pulse" />
-          <div className="w-2 h-2 bg-white/60 rounded-full animate-pulse delay-150" />
-          <div className="w-2 h-2 bg-white/60 rounded-full animate-pulse delay-300" />
-        </div>
-      </div>
-      
-      {/* Cinematic letterbox bars */}
-      <div className="absolute top-0 left-0 right-0 h-16 bg-black/50 animate-slide-down" />
-      <div className="absolute bottom-0 left-0 right-0 h-16 bg-black/50 animate-slide-up" />
-    </div>
-  );
-}
-
 export default function SellerLayout({ children }: { children: React.ReactNode }) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(true);
   const pathname = usePathname();
   const [displayChildren, setDisplayChildren] = useState(children);
   const [transitionState, setTransitionState] = useState('enter');
-
-  // Only show welcome on the main dashboard route
-  const isDashboardRoute = pathname === '/seller/dashboard';
-
-  useEffect(() => {
-    // Check if user has seen welcome screen in this session
-    const hasSeenWelcome = sessionStorage.getItem('hasSeenCinematicWelcome');
-    
-    if (hasSeenWelcome || !isDashboardRoute) {
-      setShowWelcome(false);
-    }
-  }, [isDashboardRoute]);
 
   useEffect(() => {
     setTransitionState('exit');
@@ -297,16 +220,6 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
   const getTransitionClass = () => {
     return transitionState === 'enter' ? 'page-transition-pop-enter' : 'page-transition-pop-exit';
   };
-
-  // Show welcome screen only on dashboard route
-  if (showWelcome && isDashboardRoute) {
-    return (
-      <CinematicWelcome onComplete={() => {
-        setShowWelcome(false);
-        sessionStorage.setItem('hasSeenCinematicWelcome', 'true');
-      }} />
-    );
-  }
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100/50">

@@ -18,7 +18,6 @@ import {
   Store,
   MapPin,
   Bell,
-  Menu,
   X,
   Activity,
   DollarSign,
@@ -898,23 +897,18 @@ export default function SellerDashboardPage() {
       {/* Main Content - Two Column Layout */}
       <div className="relative z-10">
         
-        {/* Premium Header */}
+        {/* Premium Header - MENU ICON REMOVED */}
         <div className="sticky top-0 z-30 bg-white/70 backdrop-blur-xl border-b border-gray-100/50">
           <div className="px-6 lg:px-8 py-3 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <button 
-                onClick={() => setSidebarOpen(true)} 
-                className="lg:hidden p-2 -ml-2 rounded-xl hover:bg-gray-100 transition-colors"
-              >
-                <Menu size={20} />
-              </button>
-              <div className="hidden lg:flex items-center gap-2">
+              {/* Menu button completely removed */}
+              <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-xl bg-gradient-to-r from-[#0F4C81] to-[#FF6B35] flex items-center justify-center">
                   <Store size={16} className="text-white" />
                 </div>
                 <span className="font-bold text-lg" style={{ color: '#0F4C81' }}>Moul L7anout</span>
               </div>
-              <div className="h-8 w-px bg-gray-200 hidden lg:block" />
+              <div className="h-8 w-px bg-gray-200" />
               <div>
                 <h1 className="text-xl font-bold text-gray-800">Dashboard</h1>
                 <p className="text-xs text-gray-400">{greeting}, {firstStore?.name || 'Store Owner'} ✨</p>
