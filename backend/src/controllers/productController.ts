@@ -4,15 +4,7 @@ import { z } from 'zod';
 
 // ========== Zod Schemas (aligned with your model) ==========
 
-const createProductSchema = z.object({
-  storeId: z.number().int().positive(),
-  name: z.string().min(1).max(100),
-  price: z.number().positive(),
-  photoUrl: z.string().url().optional(),
-  quantityAvailable: z.number().int().nonnegative().optional(),
-  deliveryAvailable: z.boolean().optional(),
-  maxPerDelivery: z.number().int().positive().optional(),
-});
+
 
 const productIdSchema = z.object({
   productId: z.string().transform(Number).refine(n => !isNaN(n), { message: 'Invalid product ID' }),
@@ -75,6 +67,17 @@ export const getProductById = async (req: Request, res: Response) => {
   }
 };
 
+const createProductSchema = z.object({
+  storeId: z.number().int().positive(),
+  name: z.string().min(1).max(100),
+  price: z.number().positive(),
+  photoUrl: z.string().url().optional(),
+  quantityAvailable: z.number().int().nonnegative().optional(),
+  deliveryAvailable: z.boolean().optional(),
+  maxPerDelivery: z.number().int().positive().optional(),
+  category: z.string().optional(),   // <-- add this
+});
+
 export const createProduct = async (req: Request, res: Response) => {
   try {
     const validated = createProductSchema.parse(req.body);
@@ -84,21 +87,15 @@ export const createProduct = async (req: Request, res: Response) => {
     if (!sellerId || !userRole) {
       return res.status(401).json({ success: false, error: 'Unauthorized' });
     }
-
-    // Only sellers or admins can create products
     if (userRole !== 'SELLER' && userRole !== 'ADMIN') {
       return res.status(403).json({ success: false, error: 'Forbidden' });
     }
 
-    // Verify the seller owns the store (or admin bypass)
-    const store = await prisma.store.findUnique({
-      where: { id: validated.storeId },
-      select: { sellerId: true },
+    // Verify seller owns the store
+    const store = await prisma.store.findFirst({
+      where: { id: validated.storeId, sellerId },
     });
     if (!store) {
-      return res.status(404).json({ success: false, error: 'Store not found' });
-    }
-    if (store.sellerId !== sellerId && userRole !== 'ADMIN') {
       return res.status(403).json({ success: false, error: 'You do not own this store' });
     }
 
@@ -111,25 +108,13 @@ export const createProduct = async (req: Request, res: Response) => {
         quantityAvailable: validated.quantityAvailable,
         deliveryAvailable: validated.deliveryAvailable ?? false,
         maxPerDelivery: validated.maxPerDelivery,
-        availableStatus: true, // default as per model
-        // expectedAvailabilityDate is optional; not set here
+        availableStatus: true,
+        category: validated.category,   // <-- add this
       },
     });
 
-    res.status(201).json({
-      success: true,
-      message: 'Product created successfully',
-      data: product,
-    });
+    res.status(201).json({ success: true, message: 'Product created', data: product });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({
-        success: false,
-        error: 'Validation failed',
-        details: error.issues,
-      });
-    }
-    console.error(error);
-    res.status(500).json({ success: false, error: 'Failed to create product' });
+    // ... error handling
   }
 };

@@ -61,6 +61,20 @@ router.get('/seller/store/live-tracking', authMiddleware, sellerController.getLi
 router.put('/seller/store/live-tracking', authMiddleware, sellerController.updateLiveTracking);
 
 
+//get product trends
+router.get('/seller/orders/monthly', authMiddleware, sellerController.getMonthlyOrders);
+//get costumer insights
+router.get('/seller/customer-insights', authMiddleware, sellerController.getCustomerInsights);
+//product sales by category
+router.get('/seller/sales-by-category', authMiddleware, sellerController.getSalesByCategory);
+router.get('/seller/recent-activity', authMiddleware, sellerController.getRecentActivity);
+
+router.get('/seller/sales-last-7-days', authMiddleware, sellerController.getSalesLast7Days);
+router.get('/seller/products', authMiddleware, sellerController.getSellerProducts);
+router.get('/seller/trending-products', authMiddleware, sellerController.getTrendingProducts);
+router.get('/seller/category-distribution', authMiddleware, sellerController.getCategoryDistribution);
+//quick stats
+router.get('/seller/quick-stats', authMiddleware, sellerController.getQuickStats);
 
 // 404 for everything else
 router.use('*', (req, res) => {

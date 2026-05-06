@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 // ========== Zod Schemas ==========
 const createStoreSchema = z.object({
+  name: z.string().min(1).max(100),
   address: z.string().min(5),
   lat: z.number().min(-90).max(90),
   lng: z.number().min(-180).max(180),
@@ -129,6 +130,7 @@ export const createStore = async (req: Request, res: Response) => {
     const newStore = await prisma.store.create({
       data: {
         sellerId,
+        name: validated.name,
         address: validated.address,
         locationLat: validated.lat,
         locationLng: validated.lng,

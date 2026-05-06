@@ -159,6 +159,7 @@ model Cashier {
 // ========== CORE BUSINESS ENTITIES ==========
 model Store {
   id                  Int       @id @default(autoincrement())
+  name                String
   sellerId            Int
   address             String
   locationLat         Float // Latitude
@@ -186,12 +187,13 @@ model Product {
   name                     String
   price                    Decimal   @db.Decimal(10, 2)
   photoUrl                 String?
-  quantityAvailable        Int? // Optional inventory
+  quantityAvailable        Int?
   deliveryAvailable        Boolean   @default(false)
-  maxPerDelivery           Int? // FR5.1 - max quantity per delivery
+  maxPerDelivery           Int?
   availableStatus          Boolean   @default(true)
   expectedAvailabilityDate DateTime?
-
+  category                 String?
+  lkridiEligible           Boolean   @default(false)
   store      Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
   orderItems OrderItem[]
 
