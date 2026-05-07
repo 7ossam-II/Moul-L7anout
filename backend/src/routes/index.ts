@@ -76,6 +76,12 @@ router.get('/seller/category-distribution', authMiddleware, sellerController.get
 //quick stats
 router.get('/seller/quick-stats', authMiddleware, sellerController.getQuickStats);
 
+router.get('/seller/orders/stats', authMiddleware, sellerController.getOrderStats);
+
+router.get('/seller/revenue/last-6-months', authMiddleware, sellerController.getRevenueLast6Months);
+
+router.get('/seller/orders', authMiddleware, sellerController.getSellerOrders);
+
 // 404 for everything else
 router.use('*', (req, res) => {
   res.status(404).json({

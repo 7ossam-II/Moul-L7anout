@@ -898,3 +898,220 @@ export const getQuickStats = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, error: 'Failed to fetch quick stats' });
   }
 };
+
+export const getOrderStats = async (req: Request, res: Response) => {
+  try {
+    const sellerId = req.user?.id;
+    const userRole = req.user?.role;
+
+    if (!sellerId || !userRole) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+    if (userRole !== 'SELLER' && userRole !== 'ADMIN') {
+      return res.status(403).json({ success: false, error: 'Forbidden' });
+    }
+
+    // Get store IDs owned by this seller
+    const stores = await prisma.store.findMany({
+      where: { sellerId },
+      select: { id: true },
+    });
+    const storeIds = stores.map(s => s.id);
+    if (storeIds.length === 0) {
+      return res.json({
+        success: true,
+        data: { totalOrders: 0, pending: 0, completed: 0, cancelled: 0, avgOrderValue: 0, conversionRate: 0 }
+      });
+    }
+
+    // Aggregate order counts by status
+    const orderCounts = await prisma.order.groupBy({
+      by: ['orderStatus'],
+      where: { storeId: { in: storeIds } },
+      _count: { id: true },
+    });
+
+    const statusMap: Record<string, number> = {};
+    for (const oc of orderCounts) {
+      statusMap[oc.orderStatus] = oc._count.id;
+    }
+
+    const totalOrders = Object.values(statusMap).reduce((a, b) => a + b, 0);
+    const pending = statusMap['PENDING'] || 0;
+    const completed = statusMap['ACCOMPLISHED'] || 0;
+    const cancelled = statusMap['CANCELLED'] || 0;
+
+    // Average order value – only from accomplished orders (or all? We'll use accomplished)
+    const accomplishedOrders = await prisma.order.findMany({
+      where: { storeId: { in: storeIds }, orderStatus: 'ACCOMPLISHED' },
+      select: { totalAmount: true },
+    });
+    const totalRevenue = accomplishedOrders.reduce((sum, o) => sum + Number(o.totalAmount), 0);
+    const avgOrderValue = accomplishedOrders.length > 0 ? totalRevenue / accomplishedOrders.length : 0;
+
+    // Conversion rate: completed / total orders * 100
+    const conversionRate = totalOrders > 0 ? (completed / totalOrders) * 100 : 0;
+
+    res.json({
+      success: true,
+      data: {
+        totalOrders,
+        pending,
+        completed,
+        cancelled,
+        avgOrderValue: Math.round(avgOrderValue * 100) / 100,
+        conversionRate: Math.round(conversionRate * 10) / 10,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Failed to fetch order stats' });
+  }
+};
+
+export const getRevenueLast6Months = async (req: Request, res: Response) => {
+  try {
+    const sellerId = req.user?.id;
+    const userRole = req.user?.role;
+
+    if (!sellerId || !userRole) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+    if (userRole !== 'SELLER' && userRole !== 'ADMIN') {
+      return res.status(403).json({ success: false, error: 'Forbidden' });
+    }
+
+    const stores = await prisma.store.findMany({
+      where: { sellerId },
+      select: { id: true },
+    });
+    const storeIds = stores.map(s => s.id);
+    if (storeIds.length === 0) {
+      return res.json({ success: true, data: [] });
+    }
+
+    // Calculate date 6 months ago from today
+    const today = new Date();
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(today.getMonth() - 6);
+    sixMonthsAgo.setHours(0, 0, 0, 0);
+
+    const orders = await prisma.order.findMany({
+      where: {
+        storeId: { in: storeIds },
+        orderStatus: 'ACCOMPLISHED',
+        createdAt: { gte: sixMonthsAgo },
+      },
+      select: { createdAt: true, totalAmount: true },
+    });
+
+    // Group by month-year
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const revenueMap = new Map<string, number>();
+
+    for (const order of orders) {
+      const date = new Date(order.createdAt);
+      const key = `${date.getFullYear()}-${date.getMonth()}`; // YYYY-M (0-index)
+      const monthName = monthNames[date.getMonth()];
+      const year = date.getFullYear();
+      const displayKey = `${year}-${monthName}`;
+      const current = revenueMap.get(displayKey) || 0;
+      revenueMap.set(displayKey, current + Number(order.totalAmount));
+    }
+
+    // Generate last 6 months in order (oldest to newest)
+    const months = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date();
+      d.setMonth(today.getMonth() - i);
+      const year = d.getFullYear();
+      const monthName = monthNames[d.getMonth()];
+      const key = `${year}-${monthName}`;
+      months.push({ month: monthName, year, revenue: revenueMap.get(key) || 0 });
+    }
+
+    res.json({ success: true, data: months });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Failed to fetch revenue for last 6 months' });
+  }
+};
+
+export const getSellerOrders = async (req: Request, res: Response) => {
+  try {
+    const sellerId = req.user?.id;
+    const userRole = req.user?.role;
+
+    if (!sellerId || !userRole) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+    if (userRole !== 'SELLER' && userRole !== 'ADMIN') {
+      return res.status(403).json({ success: false, error: 'Forbidden' });
+    }
+
+    const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
+    const offset = parseInt(req.query.offset as string) || 0;
+    const status = req.query.status as string;
+    const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
+    const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
+    const customerSearch = req.query.customerSearch as string;
+
+    // Get store IDs
+    const stores = await prisma.store.findMany({
+      where: { sellerId },
+      select: { id: true },
+    });
+    const storeIds = stores.map(s => s.id);
+    if (storeIds.length === 0) {
+      return res.json({ success: true, data: [], pagination: { total: 0, limit, offset } });
+    }
+
+    // Build where clause
+    const where: any = { storeId: { in: storeIds } };
+    if (status) where.orderStatus = status;
+    if (startDate) where.createdAt = { ...where.createdAt, gte: startDate };
+    if (endDate) where.createdAt = { ...where.createdAt, lte: endDate };
+    if (customerSearch) {
+      where.buyer = {
+        user: {
+          OR: [
+            { fullName: { contains: customerSearch, mode: 'insensitive' } },
+            { phone: { contains: customerSearch, mode: 'insensitive' } },
+          ],
+        },
+      };
+    }
+
+    const total = await prisma.order.count({ where });
+
+    const orders = await prisma.order.findMany({
+      where,
+      include: {
+        buyer: { include: { user: true } },
+        store: true,
+      },
+      orderBy: { createdAt: 'desc' },
+      skip: offset,
+      take: limit,
+    });
+
+    const data = orders.map(o => ({
+      id: o.id,
+      orderNumber: o.id, // or generate if you have orderNumber field
+      buyerName: o.buyer.user.fullName,
+      buyerPhone: o.buyer.user.phone,
+      totalAmount: o.totalAmount,
+      status: o.orderStatus,
+      createdAt: o.createdAt,
+    }));
+
+    res.json({
+      success: true,
+      data,
+      pagination: { total, limit, offset },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Failed to fetch orders' });
+  }
+};
