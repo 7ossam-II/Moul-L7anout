@@ -26,6 +26,7 @@ enum OrderStatus {
   QR_GENERATED
   ACCOMPLISHED
   REFUNDED
+  CANCELLED
 }
 
 enum PaymentMethod {

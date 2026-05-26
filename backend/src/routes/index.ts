@@ -73,6 +73,7 @@ router.get('/seller/sales-last-7-days', authMiddleware, sellerController.getSale
 router.get('/seller/products', authMiddleware, sellerController.getSellerProducts);
 router.get('/seller/trending-products', authMiddleware, sellerController.getTrendingProducts);
 router.get('/seller/category-distribution', authMiddleware, sellerController.getCategoryDistribution);
+
 //quick stats
 router.get('/seller/quick-stats', authMiddleware, sellerController.getQuickStats);
 
@@ -81,6 +82,14 @@ router.get('/seller/orders/stats', authMiddleware, sellerController.getOrderStat
 router.get('/seller/revenue/last-6-months', authMiddleware, sellerController.getRevenueLast6Months);
 
 router.get('/seller/orders', authMiddleware, sellerController.getSellerOrders);
+
+// LKRIDI Management
+router.get('/seller/lkridi/stats', authMiddleware, sellerController.getLkridiStats);
+router.get('/seller/lkridi/membership-requests', authMiddleware, sellerController.getMembershipRequests);
+router.get('/seller/lkridi/approved-members', authMiddleware, sellerController.getApprovedMembers);
+router.get('/seller/lkridi/loan-requests', authMiddleware, sellerController.getLoanRequests);
+router.post('/seller/lkridi/membership/:membershipId/approve', authMiddleware, sellerController.approveMembership);
+router.post('/seller/lkridi/orders/:orderId/approve', authMiddleware, sellerController.approveLoan);
 
 // 404 for everything else
 router.use('*', (req, res) => {

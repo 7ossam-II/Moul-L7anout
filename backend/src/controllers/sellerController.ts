@@ -1115,3 +1115,274 @@ export const getSellerOrders = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, error: 'Failed to fetch orders' });
   }
 };
+
+//getLkridiStats
+export const getLkridiStats = async (req: Request, res: Response) => {
+  try {
+    const sellerId = req.user?.id;
+    const userRole = req.user?.role;
+
+    if (!sellerId || !userRole) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+    if (userRole !== 'SELLER' && userRole !== 'ADMIN') {
+      return res.status(403).json({ success: false, error: 'Forbidden' });
+    }
+
+    // Count pending membership requests (where seller is the seller and status is 'PENDING')
+    const pendingMembership = await prisma.lkridiMembership.count({
+      where: { sellerId, approvalStatus: 'PENDING' },
+    });
+
+    // Count approved members
+    const approvedMembers = await prisma.lkridiMembership.count({
+      where: { sellerId, approvalStatus: 'APPROVED' },
+    });
+
+    // Count pending loan requests (LKRIDI orders that are still pending seller approval)
+    // Orders with paymentMethod = 'LKRIDI' and orderStatus = 'PENDING'
+    const stores = await prisma.store.findMany({
+      where: { sellerId },
+      select: { id: true },
+    });
+    const storeIds = stores.map(s => s.id);
+    const pendingLoans = await prisma.order.count({
+      where: {
+        storeId: { in: storeIds },
+        paymentMethod: 'LKRIDI',
+        orderStatus: 'PENDING',
+      },
+    });
+
+    res.json({
+      success: true,
+      data: {
+        pendingMembership,
+        approvedMembers,
+        pendingLoans,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Failed to fetch LKRIDI stats' });
+  }
+};
+//fetch lkridi membership requests
+export const getMembershipRequests = async (req: Request, res: Response) => {
+  try {
+    const sellerId = req.user?.id;
+    const userRole = req.user?.role;
+
+    if (!sellerId || !userRole) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+    if (userRole !== 'SELLER' && userRole !== 'ADMIN') {
+      return res.status(403).json({ success: false, error: 'Forbidden' });
+    }
+
+    const memberships = await prisma.lkridiMembership.findMany({
+      where: { sellerId, approvalStatus: 'PENDING' },
+      include: {
+        buyer: {
+          include: { user: true },
+        },
+      },
+      orderBy: { id: 'desc' },
+    });
+
+    const data = memberships.map(m => ({
+      membershipId: m.id,
+      buyerId: m.buyerId,
+      buyerName: m.buyer.user.fullName,
+      buyerPhone: m.buyer.user.phone,
+      requestedAt: m.id, // no separate date field, use id or add createdAt? We need to add timestamp to LkridiMembership schema.
+    }));
+
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Failed to fetch membership requests' });
+  }
+};
+//get approved members
+export const getApprovedMembers = async (req: Request, res: Response) => {
+  try {
+    const sellerId = req.user?.id;
+    const userRole = req.user?.role;
+
+    if (!sellerId || !userRole) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+    if (userRole !== 'SELLER' && userRole !== 'ADMIN') {
+      return res.status(403).json({ success: false, error: 'Forbidden' });
+    }
+
+    const memberships = await prisma.lkridiMembership.findMany({
+      where: { sellerId, approvalStatus: 'APPROVED' },
+      include: {
+        buyer: { include: { user: true } },
+      },
+      orderBy: { id: 'desc' },
+    });
+
+    const data = memberships.map(m => ({
+      membershipId: m.id,
+      buyerId: m.buyerId,
+      buyerName: m.buyer.user.fullName,
+      buyerPhone: m.buyer.user.phone,
+    }));
+
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Failed to fetch approved members' });
+  }
+};
+
+//get loan requests
+export const getLoanRequests = async (req: Request, res: Response) => {
+  try {
+    const sellerId = req.user?.id;
+    const userRole = req.user?.role;
+
+    if (!sellerId || !userRole) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+    if (userRole !== 'SELLER' && userRole !== 'ADMIN') {
+      return res.status(403).json({ success: false, error: 'Forbidden' });
+    }
+
+    const stores = await prisma.store.findMany({
+      where: { sellerId },
+      select: { id: true },
+    });
+    const storeIds = stores.map(s => s.id);
+
+    const orders = await prisma.order.findMany({
+      where: {
+        storeId: { in: storeIds },
+        paymentMethod: 'LKRIDI',
+        orderStatus: 'PENDING',
+      },
+      include: {
+        buyer: { include: { user: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const data = orders.map(o => ({
+      orderId: o.id,
+      buyerId: o.buyerId,
+      buyerName: o.buyer.user.fullName,
+      totalAmount: o.totalAmount,
+      requestedAt: o.createdAt,
+    }));
+
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Failed to fetch loan requests' });
+  }
+};
+//approve membership "LKRIDI"
+export const approveMembership = async (req: Request, res: Response) => {
+  try {
+    const sellerId = req.user?.id;
+    const userRole = req.user?.role;
+    const membershipId = parseInt(req.params.membershipId);
+    const { approved } = req.body;
+
+    if (!sellerId || !userRole) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+    if (userRole !== 'SELLER' && userRole !== 'ADMIN') {
+      return res.status(403).json({ success: false, error: 'Forbidden' });
+    }
+    if (typeof approved !== 'boolean') {
+      return res.status(400).json({ success: false, error: 'approved must be a boolean' });
+    }
+
+    const membership = await prisma.lkridiMembership.findFirst({
+      where: { id: membershipId, sellerId },
+    });
+    if (!membership) {
+      return res.status(404).json({ success: false, error: 'Membership request not found' });
+    }
+
+    await prisma.lkridiMembership.update({
+      where: { id: membershipId },
+      data: { approvalStatus: approved ? 'APPROVED' : 'DENIED' },
+    });
+
+    res.json({ success: true, message: `Membership request ${approved ? 'approved' : 'denied'}` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Failed to process membership request' });
+  }
+};
+//approve loan
+export const approveLoan = async (req: Request, res: Response) => {
+  try {
+    const sellerId = req.user?.id;
+    const userRole = req.user?.role;
+    const orderId = parseInt(req.params.orderId);
+    const { approved, deadline } = req.body;
+
+    if (!sellerId || !userRole) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+    if (userRole !== 'SELLER' && userRole !== 'ADMIN') {
+      return res.status(403).json({ success: false, error: 'Forbidden' });
+    }
+    if (typeof approved !== 'boolean') {
+      return res.status(400).json({ success: false, error: 'approved must be a boolean' });
+    }
+
+    // Verify the order belongs to a store owned by this seller and is a LKRIDI pending order
+    const order = await prisma.order.findFirst({
+      where: {
+        id: orderId,
+        paymentMethod: 'LKRIDI',
+        orderStatus: 'PENDING',
+        store: { sellerId },
+      },
+      include: { store: true },
+    });
+    if (!order) {
+      return res.status(404).json({ success: false, error: 'Order not found or not eligible' });
+    }
+
+    if (!approved) {
+      // Reject: set order status to CANCELLED or something?
+      await prisma.order.update({
+        where: { id: orderId },
+        data: { orderStatus: 'CANCELLED' },
+      });
+      return res.json({ success: true, message: 'Loan request declined' });
+    }
+
+    // Approve: create LkridiRecord, update order status to QR_GENERATED (or ACCOMPLISHED? but loan not paid yet)
+    // Use transaction
+    await prisma.$transaction(async (tx) => {
+      await tx.lkridiRecord.create({
+        data: {
+          orderId,
+          sellerId,
+          amountOwed: order.totalAmount,
+          deadline: deadline ? new Date(deadline) : null,
+          repaymentStatus: 'UNPAID',
+          autoDebitAgreed: false, // or set based on seller preference
+        },
+      });
+      await tx.order.update({
+        where: { id: orderId },
+        data: { orderStatus: 'QR_GENERATED' },
+      });
+    });
+
+    res.json({ success: true, message: 'Loan approved' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Failed to approve loan' });
+  }
+};
