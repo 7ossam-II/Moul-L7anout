@@ -1,0 +1,14 @@
+{
+  "app\\page.tsx -> @/components/sections/Footer": {
+    "id": "app\\page.tsx -> @/components/sections/Footer",
+    "files": [
+      "static/chunks/_app-pages-browser_components_sections_Footer_tsx.js"
+    ]
+  },
+  "app\\page.tsx -> @/components/sections/Hero": {
+    "id": "app\\page.tsx -> @/components/sections/Hero",
+    "files": [
+      "static/chunks/_app-pages-browser_components_sections_Hero_tsx.js"
+    ]
+  }
+}
