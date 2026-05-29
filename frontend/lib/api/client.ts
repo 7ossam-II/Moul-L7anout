@@ -17,7 +17,7 @@ class ApiClient {
 
   private getAuthToken(): string | null {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem('authToken');
+    return localStorage.getItem('moul_l7anout_token');
   }
 
   private async handleMockRequest<T>(
@@ -80,9 +80,17 @@ class ApiClient {
         credentials: 'include',
       });
       
+      if (response.status === 401) {
+        if (typeof window !== 'undefined') window.location.href = '/auth/login';
+        throw new Error('Unauthorized');
+      }
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        const message = errorData.error || errorData.message || `HTTP error! status: ${response.status}`;
+        const err = new Error(message) as Error & { details?: unknown[] };
+        err.details = errorData.details ?? [];
+        throw err;
       }
       
       return response.json() as Promise<ApiResponse<T>>;

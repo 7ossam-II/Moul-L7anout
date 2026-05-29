@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --navy: #0F4C81;
+  --orange: #FF6B35;
+  --cream: #FAFAF5;
+  --charcoal: #1A1A2E;
+  --gray-mid: #6B7280;
+  --gray-light: #F0F4F8;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: var(--cream);
+    color: var(--charcoal);
+  }
+  h1, h2, h3 {
+    font-family: var(--font-syne), sans-serif;
+  }
+}
+
+@layer utilities {
+  .font-syne {
+    font-family: var(--font-syne), sans-serif;
+  }
+  .font-inter {
+    font-family: var(--font-inter), sans-serif;
+  }
+  .font-arabic {
+    font-family: var(--font-arabic), sans-serif;
+  }
+  .zellige-bg {
+    background-image:
+      repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 20px,
+        rgba(15, 76, 129, 0.03) 20px,
+        rgba(15, 76, 129, 0.03) 21px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 20px,
+        rgba(15, 76, 129, 0.03) 20px,
+        rgba(15, 76, 129, 0.03) 21px
+      );
+  }
+}
