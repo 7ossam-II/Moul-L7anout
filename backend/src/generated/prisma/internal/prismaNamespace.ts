@@ -1997,8 +1997,10 @@ export type ChatMessageScalarFieldEnum = (typeof ChatMessageScalarFieldEnum)[key
 
 export const VideoAdScalarFieldEnum = {
   id: 'id',
+  title: 'title',
   sellerId: 'sellerId',
   videoUrl: 'videoUrl',
+  description: 'description',
   approvalStatus: 'approvalStatus',
   viewCount: 'viewCount',
   likeCount: 'likeCount',

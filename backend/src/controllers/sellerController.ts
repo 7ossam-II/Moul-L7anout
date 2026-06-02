@@ -1238,7 +1238,45 @@ export const getApprovedMembers = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, error: 'Failed to fetch approved members' });
   }
 };
+//lkridi records
+export const getLkridiRecords = async (req: Request, res: Response) => {
+  try {
+    const sellerId = req.user?.id;
+    const userRole = req.user?.role;
+    if (!sellerId || (userRole !== 'SELLER' && userRole !== 'ADMIN')) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
 
+    // Get all LkridiRecords where the seller is the seller
+    const records = await prisma.lkridiRecord.findMany({
+      where: { sellerId },
+      include: {
+        order: {
+          include: {
+            buyer: { include: { user: true } },
+            store: true,
+          },
+        },
+      },
+      orderBy: { id: 'desc' },
+    });
+
+    const data = records.map(record => ({
+      id: record.id,
+      orderId: record.orderId,
+      buyerName: record.order.buyer.user.fullName,
+      amountOwed: record.amountOwed,
+      dueDate: record.deadline,
+      status: record.repaymentStatus,
+      createdAt: record.order.createdAt,
+    }));
+
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Failed to fetch LKRIDI records' });
+  }
+};
 //get loan requests
 export const getLoanRequests = async (req: Request, res: Response) => {
   try {
@@ -1282,6 +1320,25 @@ export const getLoanRequests = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, error: 'Failed to fetch loan requests' });
+  }
+};
+// In sellerController.ts
+export const markLkridiAsPaid = async (req: Request, res: Response) => {
+  try {
+    const sellerId = req.user?.id;
+    const recordId = parseInt(req.params.recordId);
+    const { confirmed } = req.body;
+    if (!sellerId) return res.status(401).json({ success: false, error: 'Unauthorized' });
+    const record = await prisma.lkridiRecord.findFirst({ where: { id: recordId, sellerId } });
+    if (!record) return res.status(404).json({ success: false, error: 'Record not found' });
+    // Update repayment status (seller marks as paid, then buyer must confirm, or directly set paid)
+    await prisma.lkridiRecord.update({
+      where: { id: recordId },
+      data: { repaymentStatus: confirmed ? 'PAID' : 'UNPAID' },
+    });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to update record' });
   }
 };
 //approve membership "LKRIDI"
@@ -1384,5 +1441,50 @@ export const approveLoan = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, error: 'Failed to approve loan' });
+  }
+};
+
+export const getSellerStores = async (req: Request, res: Response) => {
+  try {
+    const sellerId = req.user?.id;
+    const userRole = req.user?.role;
+    if (!sellerId || (userRole !== 'SELLER' && userRole !== 'ADMIN')) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+    const stores = await prisma.store.findMany({ where: { sellerId } });
+    res.json({ success: true, data: stores });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to fetch stores' });
+  }
+};
+export const getStoreStats = async (req: Request, res: Response) => {
+  try {
+    const storeId = parseInt(req.params.storeId);
+    const sellerId = req.user?.id;
+    if (!sellerId) return res.status(401).json({ success: false, error: 'Unauthorized' });
+
+    const store = await prisma.store.findFirst({ where: { id: storeId, sellerId } });
+    if (!store) return res.status(404).json({ success: false, error: 'Store not found' });
+
+    // Count orders and revenue
+    const orders = await prisma.order.findMany({
+      where: { storeId, orderStatus: 'ACCOMPLISHED' },
+    });
+    const totalRevenue = orders.reduce((sum, o) => sum + Number(o.totalAmount), 0);
+    const totalOrders = orders.length;
+    const pendingOrders = await prisma.order.count({ where: { storeId, orderStatus: 'PENDING' } });
+    const totalProducts = await prisma.product.count({ where: { storeId } });
+
+    res.json({
+      success: true,
+      data: {
+        totalRevenue,
+        totalOrders,
+        pendingOrders,
+        totalProducts,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to fetch store stats' });
   }
 };

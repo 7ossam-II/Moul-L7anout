@@ -4,14 +4,13 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { videoApi } from '@/lib/api/endpoints';
-import type { VideoAd as ApiVideoAd } from '@/lib/types/api.types';
-import { 
-  Video, 
-  Plus, 
-  Trash2, 
-  AlertCircle, 
-  CheckCircle, 
+import { sellerApi } from '@/lib/api/endpoints';
+import {
+  Video,
+  Plus,
+  Trash2,
+  AlertCircle,
+  CheckCircle,
   Clock,
   XCircle,
   Play,
@@ -19,8 +18,6 @@ import {
   FileText,
   Link as LinkIcon,
   Sparkles,
-  TrendingUp,
-  Award,
   Crown,
   Eye
 } from 'lucide-react';
@@ -32,7 +29,7 @@ import {
 const adSchema = z.object({
   title: z.string().min(1, 'Title is required').max(100),
   description: z.string().max(300).optional(),
-  videoUrl: z.url('Enter a valid URL'),
+  videoUrl: z.string().url('Enter a valid URL'),
 });
 
 type AdFormData = z.infer<typeof adSchema>;
@@ -55,25 +52,25 @@ interface VideoAd {
 // ---------------------------------------------------------------------------
 
 function mapStatus(s: string): AdStatus {
-  if (s === 'approved' || s === 'active') return 'Approved';
-  if (s === 'rejected') return 'Rejected';
+  const status = s.toLowerCase();
+  if (status === 'approved' || status === 'active') return 'Approved';
+  if (status === 'rejected') return 'Rejected';
   return 'Pending Approval';
 }
 
 // ---------------------------------------------------------------------------
-// Premium Components
+// Premium Components (unchanged)
 // ---------------------------------------------------------------------------
 
-// Premium Stat Card
-function PremiumStatCard({ label, value, icon, color, subtitle }: { 
-  label: string; 
-  value: number; 
-  icon: React.ReactNode; 
+function PremiumStatCard({ label, value, icon, color, subtitle }: {
+  label: string;
+  value: number;
+  icon: React.ReactNode;
   color: string;
   subtitle?: string;
 }) {
   const [isHovered, setIsHovered] = useState(false);
-  
+
   return (
     <div onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)} className="relative cursor-pointer">
       <div className="absolute inset-0 rounded-2xl transition-opacity duration-500 blur-xl" style={{ background: `radial-gradient(circle at 30% 20%, ${color}40, transparent)`, opacity: isHovered ? 0.6 : 0 }} />
@@ -90,7 +87,6 @@ function PremiumStatCard({ label, value, icon, color, subtitle }: {
   );
 }
 
-// Premium Status Badge
 function PremiumStatusBadge({ status }: { status: AdStatus }) {
   const styles = {
     'Approved': { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', icon: <CheckCircle size={10} /> },
@@ -98,7 +94,7 @@ function PremiumStatusBadge({ status }: { status: AdStatus }) {
     'Rejected': { bg: 'bg-rose-50', text: 'text-rose-600', border: 'border-rose-200', icon: <XCircle size={10} /> },
   };
   const style = styles[status];
-  
+
   return (
     <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${style.bg} ${style.text} ${style.border}`}>
       {style.icon}
@@ -107,12 +103,11 @@ function PremiumStatusBadge({ status }: { status: AdStatus }) {
   );
 }
 
-// Premium Ad Row
 function AdRow({ ad, onDelete, index }: { ad: VideoAd; onDelete: (id: string) => void; index: number }) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div 
+    <div
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className="border-b border-gray-100 transition-all duration-300"
@@ -138,11 +133,11 @@ function AdRow({ ad, onDelete, index }: { ad: VideoAd; onDelete: (id: string) =>
               </div>
             </div>
           </div>
-          
+
           <div className="w-[140px]">
             <PremiumStatusBadge status={ad.status} />
           </div>
-          
+
           <button
             onClick={() => onDelete(ad.id)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-500 bg-red-50 hover:bg-red-100 transition-all duration-300 hover:scale-105"
@@ -153,7 +148,7 @@ function AdRow({ ad, onDelete, index }: { ad: VideoAd; onDelete: (id: string) =>
         </div>
       </div>
 
-      {/* Tablet View */}
+      {/* Tablet & Mobile views (simplified for brevity – same as original) */}
       <div className="hidden sm:block lg:hidden p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
@@ -175,7 +170,6 @@ function AdRow({ ad, onDelete, index }: { ad: VideoAd; onDelete: (id: string) =>
         </button>
       </div>
 
-      {/* Mobile View */}
       <div className="sm:hidden p-4">
         <div className="flex gap-3">
           <div className="w-12 h-9 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center shrink-0">
@@ -200,10 +194,9 @@ function AdRow({ ad, onDelete, index }: { ad: VideoAd; onDelete: (id: string) =>
   );
 }
 
-// Premium Create Ad Form
-function CreateAdForm({ onSubmit, isSubmitting, onCancel }: { 
-  onSubmit: (data: AdFormData) => void; 
-  isSubmitting: boolean; 
+function CreateAdForm({ onSubmit, isSubmitting, onCancel }: {
+  onSubmit: (data: AdFormData) => void;
+  isSubmitting: boolean;
   onCancel: () => void;
 }) {
   const {
@@ -229,7 +222,7 @@ function CreateAdForm({ onSubmit, isSubmitting, onCancel }: {
           <span className="ml-auto text-[10px] text-gray-400">Fill in the details below</span>
         </div>
       </div>
-      
+
       <form onSubmit={handleSubmit(handleFormSubmit)} className="p-6 space-y-5">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">
@@ -296,12 +289,6 @@ function CreateAdForm({ onSubmit, isSubmitting, onCancel }: {
   );
 }
 
-// Field error helper
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
-  return <p className="text-xs text-red-500 mt-1">{message}</p>;
-}
-
 // ---------------------------------------------------------------------------
 // Main Page
 // ---------------------------------------------------------------------------
@@ -311,6 +298,7 @@ export default function PromotionsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [stats, setStats] = useState({ total: 0, approved: 0, pending: 0, rejected: 0 });
 
   const {
     register,
@@ -320,66 +308,57 @@ export default function PromotionsPage() {
   } = useForm<AdFormData>({ resolver: zodResolver(adSchema) });
 
   useEffect(() => {
-    videoApi.getAll()
-      .then((res) => {
-        const data = Array.isArray(res.data) ? res.data as ApiVideoAd[] : [];
-        setAds(data.map((a, idx) => ({
-          id: a.id,
-          title: a.title || `Video Ad ${idx + 1}`,
-          status: mapStatus(a.status),
-          uploadedAt: a.createdAt?.split('T')[0] ?? new Date().toISOString().split('T')[0],
+    // Fetch videos and stats in parallel
+    Promise.all([sellerApi.getVideos(), sellerApi.getVideoStats()])
+      .then(([videosRes, statsRes]) => {
+        const videos = Array.isArray(videosRes.data) ? videosRes.data : [];
+        setAds(videos.map((v: any, idx: number) => ({
+          id: String(v.id),
+          title: v.title || `Video Ad ${idx + 1}`,
+          status: mapStatus(v.approvalStatus || v.status),
+          uploadedAt: v.uploadedAt ? new Date(v.uploadedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
         })));
+
+        if (statsRes.success && statsRes.data) {
+          setStats({
+            total: videos.length,
+            approved: videos.filter((v: any) => mapStatus(v.approvalStatus) === 'Approved').length,
+            pending: videos.filter((v: any) => mapStatus(v.approvalStatus) === 'Pending Approval').length,
+            rejected: videos.filter((v: any) => mapStatus(v.approvalStatus) === 'Rejected').length,
+          });
+        }
       })
-      .catch((err: Error) => setError(err.message ?? 'Failed to load ads.'))
+      .catch((err: Error) => setError(err.message ?? 'Failed to load videos.'))
       .finally(() => setLoading(false));
   }, []);
 
-  // Demo data if no API data
-  useEffect(() => {
-    if (!loading && ads.length === 0 && !error) {
-      setAds([
-        { id: '1', title: 'Summer Sale 2024', status: 'Approved', uploadedAt: '2024-01-15' },
-        { id: '2', title: 'New Menu Launch', status: 'Pending Approval', uploadedAt: '2024-01-20' },
-        { id: '3', title: 'Ramadan Specials', status: 'Approved', uploadedAt: '2024-01-25' },
-      ]);
-      setLoading(false);
-    }
-  }, [loading, ads, error]);
-
+  // If no API data, keep empty state – no demo data (to avoid confusion)
   function onSubmit(data: AdFormData) {
-    videoApi.upload({
-      title: data.title,
-      description: data.description,
-      videoUrl: data.videoUrl,
-      thumbnailUrl: '',
-      storeId: '',
-    }).then((res) => {
-      const a = res.data as ApiVideoAd | undefined;
-      const newAd: VideoAd = {
-        id: a?.id ?? `ad-${Date.now()}`,
-        title: data.title,
-        status: 'Pending Approval',
-        uploadedAt: new Date().toISOString().split('T')[0],
-      };
-      setAds((prev) => [newAd, ...prev]);
-      reset();
-      setShowForm(false);
-    }).catch((err: Error) => setError(err.message));
+    // This will work only if you implement POST /seller/videos on backend
+    sellerApi.uploadVideo(data)
+      .then((res) => {
+        const newVideo = res.data as any;
+        const newAd: VideoAd = {
+          id: String(newVideo.id),
+          title: data.title,
+          status: 'Pending Approval',
+          uploadedAt: new Date().toISOString().split('T')[0],
+        };
+        setAds((prev) => [newAd, ...prev]);
+        reset();
+        setShowForm(false);
+      })
+      .catch((err: Error) => setError(err.message));
   }
 
   function handleDelete(id: string) {
-    videoApi.delete(id)
+    sellerApi.deleteVideo(id)
       .then(() => setAds((prev) => prev.filter((a) => a.id !== id)))
       .catch((err: Error) => setError(err.message));
   }
 
-  const approvedCount = ads.filter(a => a.status === 'Approved').length;
-  const pendingCount = ads.filter(a => a.status === 'Pending Approval').length;
-  const rejectedCount = ads.filter(a => a.status === 'Rejected').length;
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100/30">
-      
       {/* Animated Background Elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-20 -left-20 w-96 h-96 bg-[#0F4C81] rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse-slow" />
@@ -415,32 +394,32 @@ export default function PromotionsPage() {
       </div>
 
       <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
-        
+
         {/* Stats Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <PremiumStatCard 
-            label="Total Ads" 
-            value={ads.length} 
-            icon={<Video size={18} />} 
+          <PremiumStatCard
+            label="Total Ads"
+            value={stats.total}
+            icon={<Video size={18} />}
             color="#0F4C81"
           />
-          <PremiumStatCard 
-            label="Approved" 
-            value={approvedCount} 
-            icon={<CheckCircle size={18} />} 
+          <PremiumStatCard
+            label="Approved"
+            value={stats.approved}
+            icon={<CheckCircle size={18} />}
             color="#10B981"
             subtitle="Live on platform"
           />
-          <PremiumStatCard 
-            label="Pending" 
-            value={pendingCount} 
-            icon={<Clock size={18} />} 
+          <PremiumStatCard
+            label="Pending"
+            value={stats.pending}
+            icon={<Clock size={18} />}
             color="#F59E0B"
             subtitle="Awaiting review"
           />
-          <PremiumStatCard 
-            label="Rejected" 
-            value={rejectedCount} 
+          <PremiumStatCard
+            label="Rejected"
+            value={stats.rejected}
             icon={<XCircle size={18} />} 
             color="#EF4444"
             subtitle="Needs revision"

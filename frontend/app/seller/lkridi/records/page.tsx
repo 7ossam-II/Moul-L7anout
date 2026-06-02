@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { lkridiApi } from '@/lib/api/endpoints';
+import { sellerLkridiApi } from '@/lib/api/endpoints';
 import { 
   Wallet, 
   Calendar, 
@@ -378,7 +378,7 @@ export default function LkridiRecordsPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    lkridiApi.getTransactions()
+    sellerLkridiApi.getRecords()
       .then((res) => {
         const data = Array.isArray(res.data) ? res.data : [];
         setRecords(data.map((r: Record<string, unknown>, idx: number) => ({
@@ -395,7 +395,7 @@ export default function LkridiRecordsPage() {
   }, []);
 
   function handleMarkPaid(id: string) {
-    lkridiApi.repayLoan(id, 0, 0)
+    sellerLkridiApi.markAsPaid(id, true)
       .then(() => {
         setRecords((prev) =>
           prev.map((r) => (r.id === id ? { ...r, status: 'awaiting_buyer_confirmation' } : r))
@@ -405,7 +405,7 @@ export default function LkridiRecordsPage() {
   }
 
   function handleConfirmReceived(id: string) {
-    lkridiApi.confirmPayment(id)
+    sellerLkridiApi.markAsPaid(id,true)
       .then(() => setRecords((prev) => prev.filter((r) => r.id !== id)))
       .catch((err: Error) => setError(err.message));
   }

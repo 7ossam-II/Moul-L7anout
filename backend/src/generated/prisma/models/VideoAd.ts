@@ -42,8 +42,10 @@ export type VideoAdSumAggregateOutputType = {
 
 export type VideoAdMinAggregateOutputType = {
   id: number | null
+  title: string | null
   sellerId: number | null
   videoUrl: string | null
+  description: string | null
   approvalStatus: $Enums.ApprovalStatus | null
   viewCount: number | null
   likeCount: number | null
@@ -52,8 +54,10 @@ export type VideoAdMinAggregateOutputType = {
 
 export type VideoAdMaxAggregateOutputType = {
   id: number | null
+  title: string | null
   sellerId: number | null
   videoUrl: string | null
+  description: string | null
   approvalStatus: $Enums.ApprovalStatus | null
   viewCount: number | null
   likeCount: number | null
@@ -62,8 +66,10 @@ export type VideoAdMaxAggregateOutputType = {
 
 export type VideoAdCountAggregateOutputType = {
   id: number
+  title: number
   sellerId: number
   videoUrl: number
+  description: number
   approvalStatus: number
   viewCount: number
   likeCount: number
@@ -88,8 +94,10 @@ export type VideoAdSumAggregateInputType = {
 
 export type VideoAdMinAggregateInputType = {
   id?: true
+  title?: true
   sellerId?: true
   videoUrl?: true
+  description?: true
   approvalStatus?: true
   viewCount?: true
   likeCount?: true
@@ -98,8 +106,10 @@ export type VideoAdMinAggregateInputType = {
 
 export type VideoAdMaxAggregateInputType = {
   id?: true
+  title?: true
   sellerId?: true
   videoUrl?: true
+  description?: true
   approvalStatus?: true
   viewCount?: true
   likeCount?: true
@@ -108,8 +118,10 @@ export type VideoAdMaxAggregateInputType = {
 
 export type VideoAdCountAggregateInputType = {
   id?: true
+  title?: true
   sellerId?: true
   videoUrl?: true
+  description?: true
   approvalStatus?: true
   viewCount?: true
   likeCount?: true
@@ -205,8 +217,10 @@ export type VideoAdGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 
 export type VideoAdGroupByOutputType = {
   id: number
+  title: string
   sellerId: number
   videoUrl: string
+  description: string | null
   approvalStatus: $Enums.ApprovalStatus
   viewCount: number
   likeCount: number
@@ -238,8 +252,10 @@ export type VideoAdWhereInput = {
   OR?: Prisma.VideoAdWhereInput[]
   NOT?: Prisma.VideoAdWhereInput | Prisma.VideoAdWhereInput[]
   id?: Prisma.IntFilter<"VideoAd"> | number
+  title?: Prisma.StringFilter<"VideoAd"> | string
   sellerId?: Prisma.IntFilter<"VideoAd"> | number
   videoUrl?: Prisma.StringFilter<"VideoAd"> | string
+  description?: Prisma.StringNullableFilter<"VideoAd"> | string | null
   approvalStatus?: Prisma.EnumApprovalStatusFilter<"VideoAd"> | $Enums.ApprovalStatus
   viewCount?: Prisma.IntFilter<"VideoAd"> | number
   likeCount?: Prisma.IntFilter<"VideoAd"> | number
@@ -249,8 +265,10 @@ export type VideoAdWhereInput = {
 
 export type VideoAdOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  title?: Prisma.SortOrder
   sellerId?: Prisma.SortOrder
   videoUrl?: Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
   approvalStatus?: Prisma.SortOrder
   viewCount?: Prisma.SortOrder
   likeCount?: Prisma.SortOrder
@@ -263,8 +281,10 @@ export type VideoAdWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.VideoAdWhereInput | Prisma.VideoAdWhereInput[]
   OR?: Prisma.VideoAdWhereInput[]
   NOT?: Prisma.VideoAdWhereInput | Prisma.VideoAdWhereInput[]
+  title?: Prisma.StringFilter<"VideoAd"> | string
   sellerId?: Prisma.IntFilter<"VideoAd"> | number
   videoUrl?: Prisma.StringFilter<"VideoAd"> | string
+  description?: Prisma.StringNullableFilter<"VideoAd"> | string | null
   approvalStatus?: Prisma.EnumApprovalStatusFilter<"VideoAd"> | $Enums.ApprovalStatus
   viewCount?: Prisma.IntFilter<"VideoAd"> | number
   likeCount?: Prisma.IntFilter<"VideoAd"> | number
@@ -274,8 +294,10 @@ export type VideoAdWhereUniqueInput = Prisma.AtLeast<{
 
 export type VideoAdOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  title?: Prisma.SortOrder
   sellerId?: Prisma.SortOrder
   videoUrl?: Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
   approvalStatus?: Prisma.SortOrder
   viewCount?: Prisma.SortOrder
   likeCount?: Prisma.SortOrder
@@ -292,8 +314,10 @@ export type VideoAdScalarWhereWithAggregatesInput = {
   OR?: Prisma.VideoAdScalarWhereWithAggregatesInput[]
   NOT?: Prisma.VideoAdScalarWhereWithAggregatesInput | Prisma.VideoAdScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"VideoAd"> | number
+  title?: Prisma.StringWithAggregatesFilter<"VideoAd"> | string
   sellerId?: Prisma.IntWithAggregatesFilter<"VideoAd"> | number
   videoUrl?: Prisma.StringWithAggregatesFilter<"VideoAd"> | string
+  description?: Prisma.StringNullableWithAggregatesFilter<"VideoAd"> | string | null
   approvalStatus?: Prisma.EnumApprovalStatusWithAggregatesFilter<"VideoAd"> | $Enums.ApprovalStatus
   viewCount?: Prisma.IntWithAggregatesFilter<"VideoAd"> | number
   likeCount?: Prisma.IntWithAggregatesFilter<"VideoAd"> | number
@@ -301,7 +325,9 @@ export type VideoAdScalarWhereWithAggregatesInput = {
 }
 
 export type VideoAdCreateInput = {
+  title: string
   videoUrl: string
+  description?: string | null
   approvalStatus?: $Enums.ApprovalStatus
   viewCount?: number
   likeCount?: number
@@ -311,8 +337,10 @@ export type VideoAdCreateInput = {
 
 export type VideoAdUncheckedCreateInput = {
   id?: number
+  title: string
   sellerId: number
   videoUrl: string
+  description?: string | null
   approvalStatus?: $Enums.ApprovalStatus
   viewCount?: number
   likeCount?: number
@@ -320,7 +348,9 @@ export type VideoAdUncheckedCreateInput = {
 }
 
 export type VideoAdUpdateInput = {
+  title?: Prisma.StringFieldUpdateOperationsInput | string
   videoUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvalStatus?: Prisma.EnumApprovalStatusFieldUpdateOperationsInput | $Enums.ApprovalStatus
   viewCount?: Prisma.IntFieldUpdateOperationsInput | number
   likeCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -330,8 +360,10 @@ export type VideoAdUpdateInput = {
 
 export type VideoAdUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  title?: Prisma.StringFieldUpdateOperationsInput | string
   sellerId?: Prisma.IntFieldUpdateOperationsInput | number
   videoUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvalStatus?: Prisma.EnumApprovalStatusFieldUpdateOperationsInput | $Enums.ApprovalStatus
   viewCount?: Prisma.IntFieldUpdateOperationsInput | number
   likeCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -340,8 +372,10 @@ export type VideoAdUncheckedUpdateInput = {
 
 export type VideoAdCreateManyInput = {
   id?: number
+  title: string
   sellerId: number
   videoUrl: string
+  description?: string | null
   approvalStatus?: $Enums.ApprovalStatus
   viewCount?: number
   likeCount?: number
@@ -349,7 +383,9 @@ export type VideoAdCreateManyInput = {
 }
 
 export type VideoAdUpdateManyMutationInput = {
+  title?: Prisma.StringFieldUpdateOperationsInput | string
   videoUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvalStatus?: Prisma.EnumApprovalStatusFieldUpdateOperationsInput | $Enums.ApprovalStatus
   viewCount?: Prisma.IntFieldUpdateOperationsInput | number
   likeCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -358,8 +394,10 @@ export type VideoAdUpdateManyMutationInput = {
 
 export type VideoAdUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  title?: Prisma.StringFieldUpdateOperationsInput | string
   sellerId?: Prisma.IntFieldUpdateOperationsInput | number
   videoUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvalStatus?: Prisma.EnumApprovalStatusFieldUpdateOperationsInput | $Enums.ApprovalStatus
   viewCount?: Prisma.IntFieldUpdateOperationsInput | number
   likeCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -378,8 +416,10 @@ export type VideoAdOrderByRelationAggregateInput = {
 
 export type VideoAdCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  title?: Prisma.SortOrder
   sellerId?: Prisma.SortOrder
   videoUrl?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   approvalStatus?: Prisma.SortOrder
   viewCount?: Prisma.SortOrder
   likeCount?: Prisma.SortOrder
@@ -395,8 +435,10 @@ export type VideoAdAvgOrderByAggregateInput = {
 
 export type VideoAdMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  title?: Prisma.SortOrder
   sellerId?: Prisma.SortOrder
   videoUrl?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   approvalStatus?: Prisma.SortOrder
   viewCount?: Prisma.SortOrder
   likeCount?: Prisma.SortOrder
@@ -405,8 +447,10 @@ export type VideoAdMaxOrderByAggregateInput = {
 
 export type VideoAdMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  title?: Prisma.SortOrder
   sellerId?: Prisma.SortOrder
   videoUrl?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   approvalStatus?: Prisma.SortOrder
   viewCount?: Prisma.SortOrder
   likeCount?: Prisma.SortOrder
@@ -463,7 +507,9 @@ export type VideoAdUncheckedUpdateManyWithoutSellerNestedInput = {
 }
 
 export type VideoAdCreateWithoutSellerInput = {
+  title: string
   videoUrl: string
+  description?: string | null
   approvalStatus?: $Enums.ApprovalStatus
   viewCount?: number
   likeCount?: number
@@ -472,7 +518,9 @@ export type VideoAdCreateWithoutSellerInput = {
 
 export type VideoAdUncheckedCreateWithoutSellerInput = {
   id?: number
+  title: string
   videoUrl: string
+  description?: string | null
   approvalStatus?: $Enums.ApprovalStatus
   viewCount?: number
   likeCount?: number
@@ -510,8 +558,10 @@ export type VideoAdScalarWhereInput = {
   OR?: Prisma.VideoAdScalarWhereInput[]
   NOT?: Prisma.VideoAdScalarWhereInput | Prisma.VideoAdScalarWhereInput[]
   id?: Prisma.IntFilter<"VideoAd"> | number
+  title?: Prisma.StringFilter<"VideoAd"> | string
   sellerId?: Prisma.IntFilter<"VideoAd"> | number
   videoUrl?: Prisma.StringFilter<"VideoAd"> | string
+  description?: Prisma.StringNullableFilter<"VideoAd"> | string | null
   approvalStatus?: Prisma.EnumApprovalStatusFilter<"VideoAd"> | $Enums.ApprovalStatus
   viewCount?: Prisma.IntFilter<"VideoAd"> | number
   likeCount?: Prisma.IntFilter<"VideoAd"> | number
@@ -520,7 +570,9 @@ export type VideoAdScalarWhereInput = {
 
 export type VideoAdCreateManySellerInput = {
   id?: number
+  title: string
   videoUrl: string
+  description?: string | null
   approvalStatus?: $Enums.ApprovalStatus
   viewCount?: number
   likeCount?: number
@@ -528,7 +580,9 @@ export type VideoAdCreateManySellerInput = {
 }
 
 export type VideoAdUpdateWithoutSellerInput = {
+  title?: Prisma.StringFieldUpdateOperationsInput | string
   videoUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvalStatus?: Prisma.EnumApprovalStatusFieldUpdateOperationsInput | $Enums.ApprovalStatus
   viewCount?: Prisma.IntFieldUpdateOperationsInput | number
   likeCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -537,7 +591,9 @@ export type VideoAdUpdateWithoutSellerInput = {
 
 export type VideoAdUncheckedUpdateWithoutSellerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  title?: Prisma.StringFieldUpdateOperationsInput | string
   videoUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvalStatus?: Prisma.EnumApprovalStatusFieldUpdateOperationsInput | $Enums.ApprovalStatus
   viewCount?: Prisma.IntFieldUpdateOperationsInput | number
   likeCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -546,7 +602,9 @@ export type VideoAdUncheckedUpdateWithoutSellerInput = {
 
 export type VideoAdUncheckedUpdateManyWithoutSellerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  title?: Prisma.StringFieldUpdateOperationsInput | string
   videoUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvalStatus?: Prisma.EnumApprovalStatusFieldUpdateOperationsInput | $Enums.ApprovalStatus
   viewCount?: Prisma.IntFieldUpdateOperationsInput | number
   likeCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -557,8 +615,10 @@ export type VideoAdUncheckedUpdateManyWithoutSellerInput = {
 
 export type VideoAdSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  title?: boolean
   sellerId?: boolean
   videoUrl?: boolean
+  description?: boolean
   approvalStatus?: boolean
   viewCount?: boolean
   likeCount?: boolean
@@ -568,8 +628,10 @@ export type VideoAdSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 
 export type VideoAdSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  title?: boolean
   sellerId?: boolean
   videoUrl?: boolean
+  description?: boolean
   approvalStatus?: boolean
   viewCount?: boolean
   likeCount?: boolean
@@ -579,8 +641,10 @@ export type VideoAdSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
 
 export type VideoAdSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  title?: boolean
   sellerId?: boolean
   videoUrl?: boolean
+  description?: boolean
   approvalStatus?: boolean
   viewCount?: boolean
   likeCount?: boolean
@@ -590,15 +654,17 @@ export type VideoAdSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
 
 export type VideoAdSelectScalar = {
   id?: boolean
+  title?: boolean
   sellerId?: boolean
   videoUrl?: boolean
+  description?: boolean
   approvalStatus?: boolean
   viewCount?: boolean
   likeCount?: boolean
   uploadedAt?: boolean
 }
 
-export type VideoAdOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerId" | "videoUrl" | "approvalStatus" | "viewCount" | "likeCount" | "uploadedAt", ExtArgs["result"]["videoAd"]>
+export type VideoAdOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "sellerId" | "videoUrl" | "description" | "approvalStatus" | "viewCount" | "likeCount" | "uploadedAt", ExtArgs["result"]["videoAd"]>
 export type VideoAdInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   seller?: boolean | Prisma.SellerDefaultArgs<ExtArgs>
 }
@@ -616,8 +682,10 @@ export type $VideoAdPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
+    title: string
     sellerId: number
     videoUrl: string
+    description: string | null
     approvalStatus: $Enums.ApprovalStatus
     viewCount: number
     likeCount: number
@@ -1047,8 +1115,10 @@ export interface Prisma__VideoAdClient<T, Null = never, ExtArgs extends runtime.
  */
 export interface VideoAdFieldRefs {
   readonly id: Prisma.FieldRef<"VideoAd", 'Int'>
+  readonly title: Prisma.FieldRef<"VideoAd", 'String'>
   readonly sellerId: Prisma.FieldRef<"VideoAd", 'Int'>
   readonly videoUrl: Prisma.FieldRef<"VideoAd", 'String'>
+  readonly description: Prisma.FieldRef<"VideoAd", 'String'>
   readonly approvalStatus: Prisma.FieldRef<"VideoAd", 'ApprovalStatus'>
   readonly viewCount: Prisma.FieldRef<"VideoAd", 'Int'>
   readonly likeCount: Prisma.FieldRef<"VideoAd", 'Int'>

@@ -12,12 +12,9 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    fullName: '',
     phone: '',
-    password: '',
-    confirmPassword: '',
-    role: 'buyer' as 'buyer' | 'seller' | 'worker' | 'delivery',
+    role: 'buyer' as 'BUYER' | 'SELLER' | 'ADMIN' | 'DELIVERY_PERSON' | 'CASHIER',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -28,30 +25,30 @@ export default function RegisterPage() {
     e.preventDefault();
     setError('');
 
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+    // Validate Moroccan phone number
+    if (!formData.phone.match(/^(06|07)[0-9]{8}$/)) {
+      setError('Please enter a valid Moroccan phone number (e.g., 0612345678)');
       return;
     }
 
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
+    if (!formData.fullName.trim()) {
+      setError('Full name is required');
       return;
     }
 
     setLoading(true);
 
     try {
+
       const res = await api.auth.register({
-        name: formData.name,
-        email: formData.email,
         phone: formData.phone,
-        password: formData.password,
+        fullName: formData.fullName,
         role: formData.role,
       });
 
       if (res.success) {
-        // ← FIXED: Added /auth/ prefix
-        router.push('/auth/verify-otp?phone=' + encodeURIComponent(formData.phone));
+        // Registration successful – redirect to login
+        router.push('/auth/login?registered=true');
       } else {
         setError(res.message || 'Registration failed');
       }
@@ -68,7 +65,7 @@ export default function RegisterPage() {
         <div>
           <h2 className="text-3xl font-bold text-center">Create Account</h2>
           <p className="mt-2 text-sm text-center text-gray-600">
-            Test accounts available on home page
+            Register to start using Moul L7anout
           </p>
         </div>
 
@@ -80,32 +77,18 @@ export default function RegisterPage() {
           )}
 
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
               Full Name
             </label>
             <input
-              id="name"
-              name="name"
+              id="fullName"
+              name="fullName"
               type="text"
               required
-              value={formData.name}
+              value={formData.fullName}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              value={formData.email}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ahmed Benjelloun"
             />
           </div>
 
@@ -120,69 +103,37 @@ export default function RegisterPage() {
               required
               value={formData.phone}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="0612345678"
             />
           </div>
 
           <div>
             <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-              I am a
+              I want to
             </label>
             <select
               id="role"
               name="role"
               value={formData.role}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="buyer">Customer (Buyer)</option>
-              <option value="seller">Store Owner (Seller)</option>
-              <option value="worker">Store Worker</option>
-              <option value="delivery">Delivery Person</option>
+              <option value="BUYER">Buy products (Customer)</option>
+              <option value="SELLER">Sell products (Store Owner)</option>
             </select>
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              value={formData.password}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-              Confirm Password
-            </label>
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              required
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
           >
             {loading ? 'Creating account...' : 'Register'}
           </button>
 
           <p className="text-center text-sm text-gray-600">
             Already have an account?{' '}
-            {/* ← FIXED: Added /auth/ prefix */}
             <Link href="/auth/login" className="text-blue-600 hover:text-blue-500">
               Sign In
             </Link>

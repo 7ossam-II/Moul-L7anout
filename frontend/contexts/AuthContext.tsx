@@ -8,7 +8,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (phone: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -20,7 +20,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const refreshUser = async () => {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('token');
     
     if (!token) {
       setUser(null);
@@ -33,11 +33,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.success && res.data) {
         setUser(res.data);
       } else {
-        localStorage.removeItem('authToken');
+        localStorage.removeItem('token');
         setUser(null);
       }
     } catch (error) {
-      localStorage.removeItem('authToken');
+      localStorage.removeItem('token');
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -47,18 +47,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     refreshUser();
   }, []);
-
-  const login = async (email: string, password: string) => {
-    const res = await api.auth.login({ email, password });
-    
-    if (res.success && res.data) {
-      const data = res.data as unknown as { user: User; token: string };
-      localStorage.setItem('authToken', data.token);
-      setUser(data.user);
-    } else {
-      throw new Error(res.message || 'Login failed');
-    }
-  };
+const login = async (phone: string) => {
+  const res = await api.auth.login({ phone });
+  // Cast to the actual backend response shape
+  const data = res as unknown as { success: boolean; token: string; user: User; message?: string };
+  if (data.success && data.token && data.user) {
+    localStorage.setItem('token', data.token);
+    setUser(data.user);
+  } else {
+    throw new Error(data.message || 'Login failed');
+  }
+};
 
   const logout = async () => {
     try {
@@ -66,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      localStorage.removeItem('authToken');
+      localStorage.removeItem('token');
       setUser(null);
       window.location.href = '/login';
     }

@@ -33,7 +33,7 @@ import {
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
-import { ordersApi } from '@/lib/api/endpoints';
+import { sellerApi } from '@/lib/api/endpoints';
 import type { ApiOrder } from '@/types/api';
 import {
   LineChart as ReLineChart,
@@ -506,7 +506,7 @@ export default function SellerOrdersPage() {
   const [chartTimeRange, setChartTimeRange] = useState<ChartTimeRange>('monthly');
 
   useEffect(() => {
-    ordersApi.getAll()
+    sellerApi.getOrders()
       .then((res) => {
         const data = (res.data ?? []) as ApiOrder[];
         setOrders(data.map((o) => ({
@@ -525,7 +525,7 @@ export default function SellerOrdersPage() {
 
   const handleRefresh = () => {
     setIsRefreshing(true);
-    ordersApi.getAll()
+    sellerApi.getOrders()
       .then((res) => {
         const data = (res.data ?? []) as ApiOrder[];
         setOrders(data.map((o) => ({

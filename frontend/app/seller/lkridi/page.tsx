@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { lkridiApi } from '@/lib/api/endpoints';
+import { sellerLkridiApi } from '@/lib/api/endpoints';
 import { 
   Users, 
   UserCheck, 
@@ -59,43 +59,41 @@ interface ApprovedMember {
 type Tab = 'membership' | 'approved' | 'loan';
 
 // ---------------------------------------------------------------------------
-// Ultra-Premium Components
+// Ultra-Premium Components (unchanged)
 // ---------------------------------------------------------------------------
 
 // 3D Glowing Stat Card
-function GlowingStatCard({ label, value, icon, color, subtitle, gradient }: { 
-  label: string; 
-  value: number; 
-  icon: React.ReactNode; 
+function GlowingStatCard({ label, value, icon, color, subtitle, gradient }: {
+  label: string;
+  value: number;
+  icon: React.ReactNode;
   color: string;
   subtitle?: string;
   gradient: string;
 }) {
   const [isHovered, setIsHovered] = useState(false);
-  
+
   return (
-    <div 
+    <div
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className="relative group cursor-pointer"
     >
-      {/* Animated gradient border */}
       <div className={`absolute -inset-0.5 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 blur-xl ${gradient}`} />
-      
-      <div 
+
+      <div
         className="relative overflow-hidden rounded-2xl transition-all duration-500"
-        style={{ 
+        style={{
           transform: isHovered ? 'translateY(-8px)' : 'translateY(0)',
           background: `linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85))`,
           boxShadow: isHovered ? `0 25px 40px -12px ${color}` : '0 1px 3px rgba(0,0,0,0.1)'
         }}
       >
-        {/* Animated shimmer */}
         <div className={`absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/50 to-transparent`} />
-        
+
         <div className="relative p-5">
           <div className="flex items-center justify-between mb-3">
-            <div 
+            <div
               className="p-3 rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-6"
               style={{ background: `linear-gradient(135deg, ${color}20, ${color}05)` }}
             >
@@ -106,9 +104,8 @@ function GlowingStatCard({ label, value, icon, color, subtitle, gradient }: {
           <p className="text-3xl font-bold" style={{ color }}>{value.toLocaleString()}</p>
           <p className="text-xs text-gray-500 mt-1 font-medium">{label}</p>
           {subtitle && <p className="text-[10px] text-gray-400 mt-1">{subtitle}</p>}
-          
-          {/* Animated progress bar */}
-          <div 
+
+          <div
             className="absolute bottom-0 left-0 h-1 rounded-full transition-all duration-700 group-hover:w-full w-0"
             style={{ background: `linear-gradient(90deg, ${color}, ${color === '#0F4C81' ? '#FF6B35' : color})` }}
           />
@@ -194,12 +191,11 @@ function Premium3DTabs({ activeTab, setActiveTab }: { activeTab: Tab; setActiveT
               ? 'text-white shadow-2xl'
               : 'text-gray-600 hover:text-gray-800'
           }`}
-          style={activeTab === tab.key ? { 
+          style={activeTab === tab.key ? {
             background: `linear-gradient(135deg, ${tab.color}, ${tab.color === '#0F4C81' ? '#1a5c9e' : tab.color === '#10B981' ? '#059669' : '#ea580c'})`,
             boxShadow: `0 4px 15px -3px ${tab.color}80`
           } : {}}
         >
-          {/* Glow effect on active */}
           {activeTab === tab.key && (
             <div className={`absolute inset-0 bg-gradient-to-r ${tab.glow} opacity-50 rounded-xl animate-pulse`} />
           )}
@@ -221,23 +217,21 @@ function GlowingMembershipRow({ request, onApprove, onDecline, index }: { reques
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div 
+    <div
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className="relative transition-all duration-500 group"
       style={{ transform: isHovered ? 'scale(1.01)' : 'scale(1)' }}
     >
-      {/* Glowing border on hover */}
       {isHovered && (
         <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-[#0F4C81]/30 to-[#FF6B35]/30 blur-xl opacity-70" />
       )}
-      
+
       <div className={`relative border-b border-gray-100 transition-all duration-300 rounded-xl overflow-hidden ${
         isHovered ? 'bg-white shadow-xl' : 'bg-white/80'
       }`}>
         <div className="px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4 flex-1">
-            {/* Animated rank badge */}
             <div className="relative">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
                 index === 0 ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-white shadow-lg' : 
@@ -249,7 +243,7 @@ function GlowingMembershipRow({ request, onApprove, onDecline, index }: { reques
               </div>
               {index === 0 && <Crown size={10} className="absolute -top-1 -right-1 text-amber-500" />}
             </div>
-            
+
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
               isHovered ? 'scale-110' : 'scale-100'
             }`} style={{ background: `linear-gradient(135deg, #0F4C8115, #FF6B3515)` }}>
@@ -284,7 +278,7 @@ function GlowingApprovedCard({ member, onRemove, index }: { member: ApprovedMemb
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div 
+    <div
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className="relative transition-all duration-500"
@@ -293,7 +287,7 @@ function GlowingApprovedCard({ member, onRemove, index }: { member: ApprovedMemb
       {isHovered && (
         <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-[#10B981]/30 to-[#0F4C81]/30 blur-xl opacity-70" />
       )}
-      
+
       <div className={`relative rounded-2xl overflow-hidden transition-all duration-300 ${
         isHovered ? 'bg-white shadow-2xl' : 'bg-white/90 shadow-lg'
       }`}>
@@ -340,8 +334,7 @@ function GlowingApprovedCard({ member, onRemove, index }: { member: ApprovedMemb
               </button>
             </div>
           </div>
-          
-          {/* Trust score bar */}
+
           <div className="mt-4 pt-3 border-t border-gray-100">
             <div className="flex items-center justify-between text-xs mb-2">
               <span className="text-gray-500 flex items-center gap-1"><Shield size={12} /> Trust Score</span>
@@ -362,7 +355,7 @@ function GlowingLoanCard({ request, onApprove, onDecline, index }: { request: Lo
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div 
+    <div
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className="relative transition-all duration-500"
@@ -371,7 +364,7 @@ function GlowingLoanCard({ request, onApprove, onDecline, index }: { request: Lo
       {isHovered && (
         <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-[#FF6B35]/30 to-[#0F4C81]/30 blur-xl opacity-70" />
       )}
-      
+
       <div className={`relative rounded-2xl overflow-hidden transition-all duration-300 ${
         isHovered ? 'bg-white shadow-2xl' : 'bg-white/90 shadow-lg'
       }`}>
@@ -409,8 +402,7 @@ function GlowingLoanCard({ request, onApprove, onDecline, index }: { request: Lo
             </div>
             <GlassActionButtons id={request.id} onApprove={onApprove} onDecline={onDecline} />
           </div>
-          
-          {/* Urgency indicator */}
+
           <div className="mt-4 pt-3 border-t border-gray-100">
             <div className="flex items-center gap-2">
               <div className="flex-1">
@@ -548,7 +540,7 @@ function ErrorState({ message }: { message: string }) {
 }
 
 // ---------------------------------------------------------------------------
-// Tab Panels
+// Tab Panels (UPDATED to use sellerLkridiApi)
 // ---------------------------------------------------------------------------
 
 function MembershipTab() {
@@ -557,26 +549,18 @@ function MembershipTab() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    lkridiApi.getMembership()
+    sellerLkridiApi.getMembershipRequests()
       .then((res) => {
         const data = res.data;
-        if (data && 'approvalStatus' in data && data.approvalStatus === 'PENDING') {
-          setRequests([{
-            id: String((data as { id?: string | number }).id ?? ''),
-            buyerName: 'Ahmed Benjelloun',
-            phone: '+212 6XX XXX XXX',
-            requestDate: '2024-01-15',
-          }, {
-            id: '2',
-            buyerName: 'Fatima Zahra',
-            phone: '+212 6XX XXX XXX',
-            requestDate: '2024-01-14',
-          }, {
-            id: '3',
-            buyerName: 'Youssef El Mansouri',
-            phone: '+212 6XX XXX XXX',
-            requestDate: '2024-01-13',
-          }]);
+        if (Array.isArray(data) && data.length > 0) {
+          setRequests(data.map((item: any) => ({
+            id: String(item.membershipId),
+            buyerName: item.buyerName,
+            phone: item.buyerPhone,
+            requestDate: item.requestedAt ? new Date(item.requestedAt).toLocaleDateString() : '',
+          })));
+        } else {
+          setRequests([]);
         }
       })
       .catch((err: Error) => setError(err.message ?? 'Failed to load membership requests.'))
@@ -584,13 +568,13 @@ function MembershipTab() {
   }, []);
 
   function handleApprove(id: string) {
-    lkridiApi.approveMembership(id, true)
+    sellerLkridiApi.approveMembership(id, true)
       .then(() => setRequests((prev) => prev.filter((r) => r.id !== id)))
       .catch((err: Error) => setError(err.message));
   }
 
   function handleDecline(id: string) {
-    lkridiApi.approveMembership(id, false)
+    sellerLkridiApi.approveMembership(id, false)
       .then(() => setRequests((prev) => prev.filter((r) => r.id !== id)))
       .catch((err: Error) => setError(err.message));
   }
@@ -604,7 +588,6 @@ function MembershipTab() {
       {requests.map((request, idx) => (
         <GlowingMembershipRow key={request.id} request={request} onApprove={handleApprove} onDecline={handleDecline} index={idx} />
       ))}
-      {/* Mobile View */}
       <div className="lg:hidden space-y-4">
         {requests.map((request) => (
           <MobileMembershipCard key={request.id} request={request} onApprove={handleApprove} onDecline={handleDecline} />
@@ -620,29 +603,19 @@ function ApprovedMembersTab() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    lkridiApi.getMembership()
+    sellerLkridiApi.getApprovedMembers()
       .then((res) => {
         const data = res.data;
-        if (data && 'approvalStatus' in data && data.approvalStatus === 'APPROVED') {
-          setMembers([{
-            id: String((data as { id?: string | number }).id ?? ''),
-            buyerName: 'Ahmed Benjelloun',
-            phone: '+212 6XX XXX XXX',
-            approvedDate: '2024-01-10',
-            totalLoans: 3,
-          }, {
-            id: '2',
-            buyerName: 'Sara Benali',
-            phone: '+212 6XX XXX XXX',
-            approvedDate: '2024-01-08',
-            totalLoans: 2,
-          }, {
-            id: '3',
-            buyerName: 'Mehdi Tazi',
-            phone: '+212 6XX XXX XXX',
-            approvedDate: '2024-01-05',
-            totalLoans: 5,
-          }]);
+        if (Array.isArray(data) && data.length > 0) {
+          setMembers(data.map((item: any) => ({
+            id: String(item.membershipId),
+            buyerName: item.buyerName,
+            phone: item.buyerPhone,
+            approvedDate: '', // You can add createdAt to your backend later if needed
+            totalLoans: 0,    // Compute from records if you have a separate endpoint
+          })));
+        } else {
+          setMembers([]);
         }
       })
       .catch((err: Error) => setError(err.message ?? 'Failed to load approved members.'))
@@ -650,7 +623,7 @@ function ApprovedMembersTab() {
   }, []);
 
   function handleRemove(id: string) {
-    lkridiApi.approveMembership(id, false)
+    sellerLkridiApi.approveMembership(id, false)
       .then(() => setMembers((prev) => prev.filter((m) => m.id !== id)))
       .catch((err: Error) => setError(err.message));
   }
@@ -664,7 +637,6 @@ function ApprovedMembersTab() {
       {members.map((member, idx) => (
         <GlowingApprovedCard key={member.id} member={member} onRemove={handleRemove} index={idx} />
       ))}
-      {/* Mobile View */}
       <div className="lg:hidden space-y-4">
         {members.map((member) => (
           <MobileApprovedCard key={member.id} member={member} onRemove={handleRemove} />
@@ -680,26 +652,35 @@ function LoanTab() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    lkridiApi.getTransactions()
-      .then(() => {
-        setRequests([
-          { id: '1', buyerName: 'Ahmed Benjelloun', products: 'Tacos, Burger, Fries', totalAmount: 450, requestDate: '2024-01-15' },
-          { id: '2', buyerName: 'Fatima Zahra', products: 'Sandwiches x3', totalAmount: 230, requestDate: '2024-01-14' },
-          { id: '3', buyerName: 'Youssef El Mansouri', products: 'Family Meal Deal', totalAmount: 890, requestDate: '2024-01-13' },
-        ]);
+    sellerLkridiApi.getLoanRequests()
+      .then((res) => {
+        const data = res.data;
+        if (Array.isArray(data) && data.length > 0) {
+          setRequests(data.map((item: any) => ({
+            id: String(item.orderId),
+            buyerName: item.buyerName,
+            products: '', // Backend doesn't provide product list; can be omitted for now
+            totalAmount: item.totalAmount,
+            requestDate: new Date(item.requestedAt).toLocaleDateString(),
+          })));
+        } else {
+          setRequests([]);
+        }
       })
       .catch((err: Error) => setError(err.message ?? 'Failed to load loan requests.'))
       .finally(() => setLoading(false));
   }, []);
 
   function handleApprove(id: string) {
-    lkridiApi.acceptOrder(id)
+    sellerLkridiApi.approveLoan(id, true)
       .then(() => setRequests((prev) => prev.filter((r) => r.id !== id)))
       .catch((err: Error) => setError(err.message));
   }
 
   function handleDecline(id: string) {
-    setRequests((prev) => prev.filter((r) => r.id !== id));
+    sellerLkridiApi.approveLoan(id, false)
+      .then(() => setRequests((prev) => prev.filter((r) => r.id !== id)))
+      .catch((err: Error) => setError(err.message));
   }
 
   if (loading) return <TableSkeleton />;
@@ -711,7 +692,6 @@ function LoanTab() {
       {requests.map((request, idx) => (
         <GlowingLoanCard key={request.id} request={request} onApprove={handleApprove} onDecline={handleDecline} index={idx} />
       ))}
-      {/* Mobile View */}
       <div className="lg:hidden space-y-4">
         {requests.map((request) => (
           <MobileLoanCard key={request.id} request={request} onApprove={handleApprove} onDecline={handleDecline} />
@@ -727,7 +707,8 @@ function LoanTab() {
 
 export default function LkridiHubPage() {
   const [activeTab, setActiveTab] = useState<Tab>('membership');
-
+  // You can also fetch these stats from sellerLkridiApi.getStats() and update the state.
+  // For now, keep the same placeholder numbers – they will be replaced once you fetch real data.
   const stats = {
     pendingMembership: 3,
     approvedMembers: 3,
@@ -736,7 +717,6 @@ export default function LkridiHubPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100/30">
-      
       {/* Animated Background Elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-20 -left-20 w-96 h-96 bg-[#0F4C81] rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse-slow" />
@@ -770,8 +750,7 @@ export default function LkridiHubPage() {
       </div>
 
       <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
-        
-        {/* Stats Cards */}
+        {/* Stats Cards (still placeholder – you can connect to sellerLkridiApi.getStats() later) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <GlowingStatCard 
             label="Pending Membership" 

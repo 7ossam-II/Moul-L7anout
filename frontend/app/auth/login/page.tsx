@@ -10,17 +10,23 @@ import { useAuth } from '@/lib/hooks/useAuth';
 export default function LoginPage() {
   const router = useRouter();
   const { login, isLoading } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
+    // Basic Moroccan phone number validation (optional)
+    if (!phone.match(/^(06|07)[0-9]{8}$/)) {
+      setError('Please enter a valid Moroccan phone number (e.g., 0612345678)');
+      return;
+    }
+console.log('Calling login with phone:', phone);
+await login(phone);
     try {
-      await login(email, password);
-      router.push('/');  // ← CHANGE THIS from '/discover' to '/'
+      await login(phone)   // the login function should accept a phone string
+      router.push('/seller/dashboard'); // or '/' if your root shows the seller dashboard
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     }
@@ -32,7 +38,7 @@ export default function LoginPage() {
         <div>
           <h2 className="text-3xl font-bold text-center">Sign In</h2>
           <p className="mt-2 text-sm text-center text-gray-600">
-            Use buyer@example.com / password123
+            Enter your phone number to receive an OTP
           </p>
         </div>
 
@@ -44,32 +50,17 @@ export default function LoginPage() {
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+              Phone Number
             </label>
             <input
-              id="email"
-              type="email"
+              id="phone"
+              type="tel"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              placeholder="buyer@example.com"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              placeholder="••••••••"
+              placeholder="0612345678"
             />
           </div>
 

@@ -26,37 +26,37 @@ import type {
 
 export const authApi = {
   login: (credentials: LoginCredentials) => 
-    apiClient.post<AuthResponse>('/v1/auth/login', credentials as unknown as Record<string, unknown>),
+    apiClient.post<AuthResponse>('/auth/login', credentials as unknown as Record<string, unknown>),
   
   register: (data: RegisterData) => 
-    apiClient.post<AuthResponse>('/v1/auth/register', data as unknown as Record<string, unknown>),
+    apiClient.post<AuthResponse>('/auth/register', data as unknown as Record<string, unknown>),
   
   verifyOtp: (phone: string, otp: string) => 
-    apiClient.post<{ verified: boolean }>('/v1/auth/verify-otp', { phone, otp }),
+    apiClient.post<{ verified: boolean }>('/auth/verify-otp', { phone, otp }),
   
   resendOtp: (phone: string) =>
-    apiClient.post<{ sent: boolean }>('/v1/auth/resend-otp', { phone }),
+    apiClient.post<{ sent: boolean }>('/auth/resend-otp', { phone }),
   
   getCurrentUser: () => 
-    apiClient.get<User>('/v1/auth/me'),
+    apiClient.get<User>('/auth/me'),
   
   logout: () => 
-    apiClient.post('/v1/auth/logout'),
+    apiClient.post('/auth/logout'),
   
   refreshToken: (refreshToken: string) =>
-    apiClient.post<{ token: string }>('/v1/auth/refresh', { refreshToken }),
+    apiClient.post<{ token: string }>('/auth/refresh', { refreshToken }),
   
   forgotPassword: (email: string) =>
-    apiClient.post<{ sent: boolean }>('/v1/auth/forgot-password', { email }),
+    apiClient.post<{ sent: boolean }>('/auth/forgot-password', { email }),
   
   resetPassword: (token: string, newPassword: string) =>
-    apiClient.post<{ success: boolean }>('/v1/auth/reset-password', { token, newPassword }),
+    apiClient.post<{ success: boolean }>('/auth/reset-password', { token, newPassword }),
   
   updateProfile: (data: Partial<User>) =>
-    apiClient.put<User>('/v1/auth/profile', data as unknown as Record<string, unknown>),
+    apiClient.put<User>('/auth/profile', data as unknown as Record<string, unknown>),
   
   changePassword: (currentPassword: string, newPassword: string) =>
-    apiClient.post<{ changed: boolean }>('/v1/auth/change-password', { currentPassword, newPassword }),
+    apiClient.post<{ changed: boolean }>('/auth/change-password', { currentPassword, newPassword }),
 };
 
 // ============================================
@@ -100,7 +100,11 @@ export const storesApi = {
 
   getStoreStats: (id: string) =>
     apiClient.get<StoreStats>(`/stores/${id}/stats`),
+  getSellerStores: () =>
+      apiClient.get<Store[]>('/seller/stores'),
 };
+
+// seller API
 
 // ============================================
 // Products API (FR7.1)
@@ -201,10 +205,10 @@ export const qrApi = {
     apiClient.post<{ accomplished: boolean; bothAccomplished: boolean; message: string }>(`/v1/qr/${code}/accomplish`, {}),
   
   getStoreQRCodes: (storeId: string) =>
-    apiClient.get<QRCode[]>(`/v1/qr/store/${storeId}`),
+    apiClient.get<QRCode[]>(`/qr/store/${storeId}`),
   
   deactivate: (codeId: string) =>
-    apiClient.post<{ deactivated: boolean }>(`/v1/qr/${codeId}/deactivate`, {}),
+    apiClient.post<{ deactivated: boolean }>(`/qr/${codeId}/deactivate`, {}),
 };
 
 // ============================================
@@ -222,20 +226,20 @@ export const deliveryApi = {
       });
     }
     const query = queryParams.toString();
-    return apiClient.get<Order[]>(`/v1/delivery/available-orders${query ? `?${query}` : ''}`);
+    return apiClient.get<Order[]>(`/delivery/available-orders${query ? `?${query}` : ''}`);
   },
   
   acceptOrder: (orderId: string) =>
-    apiClient.post<{ success: boolean }>(`/v1/delivery/orders/${orderId}/accept`, {}),
+    apiClient.post<{ success: boolean }>(`/delivery/orders/${orderId}/accept`, {}),
   
   updateLocation: (orderId: string, lat: number, lng: number) =>
-    apiClient.post<{ success: boolean }>(`/v1/delivery/orders/${orderId}/location`, { lat, lng }),
+    apiClient.post<{ success: boolean }>(`/delivery/orders/${orderId}/location`, { lat, lng }),
   
   markPickedUp: (orderId: string) =>
-    apiClient.post<{ success: boolean }>(`/v1/delivery/orders/${orderId}/picked-up`, {}),
+    apiClient.post<{ success: boolean }>(`/delivery/orders/${orderId}/picked-up`, {}),
   
   markDelivered: (orderId: string) =>
-    apiClient.post<{ success: boolean }>(`/v1/delivery/orders/${orderId}/delivered`, {}),
+    apiClient.post<{ success: boolean }>(`/delivery/orders/${orderId}/delivered`, {}),
   
   getMyDeliveries: (params?: { page?: number; limit?: number }) => {
     const queryParams = new URLSearchParams();
@@ -247,7 +251,7 @@ export const deliveryApi = {
       });
     }
     const query = queryParams.toString();
-    return apiClient.get<Order[]>(`/v1/delivery/my-deliveries${query ? `?${query}` : ''}`);
+    return apiClient.get<Order[]>(`/delivery/my-deliveries${query ? `?${query}` : ''}`);
   },
 };
 
@@ -291,22 +295,53 @@ export const lkridiApi = {
   },
 };
 
+
+//=========================================
+//seller lkridi API
+//====================================
+export const sellerLkridiApi = {
+  // Get stats (pending membership, approved members, pending loans)
+  getStats: () => apiClient.get('/seller/lkridi/stats'),
+
+  // Get list of pending membership requests
+  getMembershipRequests: () => apiClient.get('/seller/lkridi/membership-requests'),
+
+  // Get list of approved members
+  getApprovedMembers: () => apiClient.get('/seller/lkridi/approved-members'),
+
+  // Get list of pending loan requests (LKRIDI orders)
+  getLoanRequests: () => apiClient.get('/seller/lkridi/loan-requests'),
+
+  // Approve or decline a membership request
+  approveMembership: (membershipId: string, approved: boolean) =>
+    apiClient.post(`/seller/lkridi/membership/${membershipId}/approve`, { approved }),
+
+  // Approve or decline a loan request (order)
+  approveLoan: (orderId: string, approved: boolean, deadline?: string) =>
+    apiClient.post(`/seller/lkridi/orders/${orderId}/approve`, { approved, deadline }),
+  getRecords: () => apiClient.get('/seller/lkridi/records'),
+  markAsPaid: (recordId: string, confirmed: boolean) =>
+  apiClient.post(`/seller/lkridi/records/${recordId}/mark-paid`, { confirmed }),
+};
+//============================================
+
+
 // ============================================
 // Worker API (FR7.6)
 // ============================================
 
 export const workerApi = {
   getMyWorkerStores: () => 
-    apiClient.get<Store[]>('/v1/workers/my-stores'),
+    apiClient.get<Store[]>('/workers/my-stores'),
   
   getMyPendingInvitations: () =>
-    apiClient.get<WorkerInvitation[]>('/v1/workers/invitations'),
+    apiClient.get<WorkerInvitation[]>('/workers/invitations'),
   
   acceptInvitation: (workerId: string, password: string) =>
-    apiClient.post<{ accepted: boolean }>(`/v1/workers/invitations/${workerId}/accept`, { password }),
+    apiClient.post<{ accepted: boolean }>(`/workers/invitations/${workerId}/accept`, { password }),
   
   declineInvitation: (workerId: string) =>
-    apiClient.post<{ declined: boolean }>(`/v1/workers/invitations/${workerId}/decline`, {}),
+    apiClient.post<{ declined: boolean }>(`/workers/invitations/${workerId}/decline`, {}),
   
   getStoreWorkers: (storeId: string) =>
     apiClient.get<Worker[]>(`/stores/${storeId}/workers`),
@@ -321,7 +356,7 @@ export const workerApi = {
     apiClient.delete<{ removed: boolean; workerId: string }>(`/stores/${storeId}/workers/${workerId}`),
   
   checkPermission: (storeId: string, permission: keyof WorkerPermissions) =>
-    apiClient.get<{ hasPermission: boolean }>(`/v1/workers/stores/${storeId}/check-permission?permission=${permission}`),
+    apiClient.get<{ hasPermission: boolean }>(`/workers/stores/${storeId}/check-permission?permission=${permission}`),
 };
 
 // ============================================
@@ -330,16 +365,16 @@ export const workerApi = {
 
 export const chatApi = {
   getConversations: () =>
-    apiClient.get<Conversation[]>('/v1/chat/conversations'),
+    apiClient.get<Conversation[]>('/chat/conversations'),
   
   getMessages: (conversationId: string) =>
-    apiClient.get<ChatMessage[]>(`/v1/chat/${conversationId}`),
+    apiClient.get<ChatMessage[]>(`/chat/${conversationId}`),
   
   sendMessage: (conversationId: string, message: string, type: 'text' | 'image' = 'text') =>
-    apiClient.post<ChatMessage>(`/v1/chat/${conversationId}`, { message, type }),
+    apiClient.post<ChatMessage>(`/chat/${conversationId}`, { message, type }),
   
   markAsRead: (conversationId: string) =>
-    apiClient.post(`/v1/chat/${conversationId}/read`, {}),
+    apiClient.post(`/chat/${conversationId}/read`, {}),
 };
 
 // ============================================
@@ -348,13 +383,13 @@ export const chatApi = {
 
 export const notificationsApi = {
   getAll: () =>
-    apiClient.get<Notification[]>('/v1/notifications'),
+    apiClient.get<Notification[]>('/notifications'),
   
   markAsRead: (id: string) =>
-    apiClient.patch(`/v1/notifications/${id}/read`, {}),
+    apiClient.patch(`/notifications/${id}/read`, {}),
   
   markAllAsRead: () =>
-    apiClient.patch('/v1/notifications/read-all', {}),
+    apiClient.patch('/notifications/read-all', {}),
 };
 
 // ============================================
@@ -394,20 +429,20 @@ export const videoApi = {
       });
     }
     const query = queryParams.toString();
-    return apiClient.get(`/v1/videos${query ? `?${query}` : ''}`);
+    return apiClient.get(`/videos${query ? `?${query}` : ''}`);
   },
   
   getById: (id: string) =>
-    apiClient.get(`/v1/videos/${id}`),
+    apiClient.get(`/videos/${id}`),
   
   upload: (data: { title: string; description?: string; videoUrl: string; thumbnailUrl: string; storeId: string }) =>
-    apiClient.post('/v1/videos', data),
+    apiClient.post('/videos', data),
   
   delete: (id: string) =>
-    apiClient.delete(`/v1/videos/${id}`),
+    apiClient.delete(`/videos/${id}`),
   
   like: (id: string) =>
-    apiClient.post(`/v1/videos/${id}/like`, {}),
+    apiClient.post(`/videos/${id}/like`, {}),
 };
 
 // ============================================
@@ -416,10 +451,10 @@ export const videoApi = {
 
 export const analyticsApi = {
   getBuyerStats: (buyerId: string) =>
-    apiClient.get(`/v1/analytics/buyer/${buyerId}`),
+    apiClient.get(`/analytics/buyer/${buyerId}`),
   
   getSellerStats: (sellerId: string) =>
-    apiClient.get(`/v1/analytics/seller/${sellerId}`),
+    apiClient.get(`/analytics/seller/${sellerId}`),
 };
 
 // ============================================
@@ -428,7 +463,7 @@ export const analyticsApi = {
 
 export const adminApi = {
   getStats: () =>
-    apiClient.get('/v1/admin/stats'),
+    apiClient.get('/admin/stats'),
   
   getUsers: (params?: { page?: number; limit?: number; role?: string }) => {
     const queryParams = new URLSearchParams();
@@ -440,17 +475,17 @@ export const adminApi = {
       });
     }
     const query = queryParams.toString();
-    return apiClient.get(`/v1/admin/users${query ? `?${query}` : ''}`);
+    return apiClient.get(`/admin/users${query ? `?${query}` : ''}`);
   },
   
   getPendingSellers: () =>
-    apiClient.get('/v1/admin/sellers/pending'),
+    apiClient.get('/admin/sellers/pending'),
   
   approveSeller: (sellerId: string) =>
-    apiClient.post(`/v1/admin/sellers/${sellerId}/approve`, {}),
+    apiClient.post(`/admin/sellers/${sellerId}/approve`, {}),
   
   rejectSeller: (sellerId: string, reason?: string) =>
-    apiClient.post(`/v1/admin/sellers/${sellerId}/reject`, { reason }),
+    apiClient.post(`/admin/sellers/${sellerId}/reject`, { reason }),
   
   getDisputes: (params?: { page?: number; limit?: number }) => {
     const queryParams = new URLSearchParams();
@@ -462,11 +497,11 @@ export const adminApi = {
       });
     }
     const query = queryParams.toString();
-    return apiClient.get(`/v1/admin/disputes${query ? `?${query}` : ''}`);
+    return apiClient.get(`/admin/disputes${query ? `?${query}` : ''}`);
   },
   
   resolveDispute: (disputeId: string, resolution: string) =>
-    apiClient.post(`/v1/admin/disputes/${disputeId}/resolve`, { resolution }),
+    apiClient.post(`/admin/disputes/${disputeId}/resolve`, { resolution }),
 };
 
 // ============================================
@@ -484,14 +519,14 @@ export const disputeApi = {
       });
     }
     const query = queryParams.toString();
-    return apiClient.get<Dispute[]>(`/v1/disputes${query ? `?${query}` : ''}`);
+    return apiClient.get<Dispute[]>(`/disputes${query ? `?${query}` : ''}`);
   },
   
   getById: (id: string) =>
-    apiClient.get<Dispute>(`/v1/disputes/${id}`),
+    apiClient.get<Dispute>(`/disputes/${id}`),
   
   create: (data: { orderId: string; type: string; description: string; evidence?: string[] }) =>
-    apiClient.post<Dispute>('/v1/disputes', data),
+    apiClient.post<Dispute>('/disputes', data),
 };
 
 // ============================================
@@ -512,6 +547,55 @@ export const uploadApi = {
     if (folder) formData.append('folder', folder);
     return apiClient.upload<Array<{ url: string; publicId: string; filename: string; size: number }>>('/v1/upload/multiple', formData);
   },
+};
+export const sellerApi = {
+  // Get top customers (limit optional)
+  getTopCustomers: (params?: { limit?: number }) => {
+    const query = params?.limit ? `?limit=${params.limit}` : '';
+    return apiClient.get(`/seller/top-customers${query}`);
+  },
+ getOrders: (params?: { page?: number; limit?: number; status?: string }) => {
+    const query = new URLSearchParams();
+    if (params?.page) query.append('page', String(params.page));
+    if (params?.limit) query.append('limit', String(params.limit));
+    if (params?.status) query.append('status', params.status);
+    const qs = query.toString();
+    return apiClient.get(`/seller/orders${qs ? `?${qs}` : ''}`);
+  },
+
+getVideos: () => apiClient.get('/seller/videos'),
+getVideoStats: () => apiClient.get('/seller/video-stats'),
+// For upload – you need to implement the backend endpoint first
+uploadVideo: (data: { title: string; description?: string; videoUrl: string; thumbnailUrl?: string }) =>
+  apiClient.post('/seller/videos', data),
+deleteVideo: (videoId: string) => apiClient.delete(`/seller/videos/${videoId}`),
+
+
+
+  // Get category distribution (list of categories with product counts)
+  getCategoryDistribution: () => apiClient.get('/seller/category-distribution'),
+
+  // Get customer insights (returning %, avg order value, lifetime)
+  getCustomerInsights: () => apiClient.get('/seller/customer-insights'),
+
+  // Get monthly revenue (for chart)
+  getRevenueMonthly: () => apiClient.get('/seller/revenue/monthly'),
+
+  // Get monthly orders count (for chart)
+  getMonthlyOrders: () => apiClient.get('/seller/orders/monthly'),
+};
+
+
+
+// ============================================
+// Seller Cashier API (for seller dashboard to manage cashiers)
+// ============================================
+
+export const sellerCashierApi = {
+  getCashiers: () => apiClient.get('/seller/cashiers'),
+  createCashier: (data: { storeId: number; phone: string; fullName: string; password?: string }) =>
+    apiClient.post('/seller/cashiers', data),
+  removeCashier: (cashierId: string) => apiClient.delete(`/seller/cashiers/${cashierId}`),
 };
 
 // ============================================

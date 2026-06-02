@@ -217,18 +217,16 @@ export interface StoreStats {
 // ============================================
 
 export interface LoginCredentials {
-  email: string;
-  password: string;
+  // email: string;
+  // password: string;
+  phone: string
 }
 
-export interface RegisterData {
-  email: string;
-  password: string;
-  name: string;
-  phone?: string;
-  role?: 'buyer' | 'seller' | 'worker' | 'delivery';  // ← Added 'worker'
-}
-
+export type RegisterData = {
+  phone: string;
+  fullName: string;
+  role: 'BUYER' | 'SELLER' | 'ADMIN' | 'DELIVERY_PERSON' | 'CASHIER';
+};
 export interface AuthResponse {
   success: boolean;
   data: {
@@ -475,11 +473,11 @@ export interface Order {
   deliveryFee: number;
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
-  deliveryAddress: Address | null;  // ← Can be null for pickup
-  isDelivery: boolean;              // ← ADD THIS
-  qrCode?: string;                  // ← ADD THIS
-  cancelReason?: string;            // ← ADD THIS
-  cancelledBy?: string;             // ← ADD THIS
+  deliveryAddress: Address | null;
+  isDelivery: boolean;
+  qrCode?: string;
+  cancelReason?: string;
+  cancelledBy?: string;
   createdAt: string;
   updatedAt: string;
   estimatedDeliveryTime?: string;

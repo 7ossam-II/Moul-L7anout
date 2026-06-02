@@ -352,8 +352,10 @@ model ChatMessage {
 // ========== VIDEO ADS ==========
 model VideoAd {
   id             Int      @id @default(autoincrement())
+  title          String
   sellerId       Int
   videoUrl       String
+  description    String?
   approvalStatus ApprovalStatus @default(PENDING)
   viewCount      Int      @default(0)   // new
   likeCount      Int      @default(0)   // new
