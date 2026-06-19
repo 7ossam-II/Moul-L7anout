@@ -1,15 +1,12 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
-generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
-}
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
 }
 
 // ========== ENUMS ==========
@@ -276,7 +273,7 @@ model LkridiMembership {
   buyerId        Int
   sellerId       Int
   approvalStatus ApprovalStatus @default(PENDING)
-  creditLimit    Decimal?       @db.Decimal(10, 2) // Optional - null = no preset limit
+  creditLimit    Decimal?       @db.Decimal(10, 2)
 
   buyer  Buyer  @relation(fields: [buyerId], references: [userId])
   seller Seller @relation(fields: [sellerId], references: [userId])
